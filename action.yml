@@ -1,0 +1,21 @@
+name: 'Github Trending Repos Email'
+author: 'Talljack'
+description: 'To send github trending repos to your email'
+
+inputs:
+  token:
+    description: 'Your GITHUB_TOKEN'
+    required: false
+    default: '${{ github.token }}'
+  sendTime:
+    description: 'The time the email was sent'
+    required: false
+    default: '19:00'
+
+runs:
+  using: 'node20'
+  main: 'lib/index.js'
+
+branding:
+  icon: 'code'
+  color: 'green'

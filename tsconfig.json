@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "baseUrl": "./src",
+      "outDir": "lib",
+      "lib": ["ESNext"],
+      "module": "esnext",
+      "target": "esnext",
+      "strict": true,
+      "pretty": true,
+      "esModuleInterop": true,
+      "resolveJsonModule": true,
+      "moduleResolution": "node",
+      "importHelpers": true
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "lib"]
+  }
