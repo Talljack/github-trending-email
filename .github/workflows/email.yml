@@ -20,13 +20,14 @@ jobs:
         id: trending-repos
         env:
             token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
+            languages: '["", "typescript", "rust", "go"]'
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'  # Specify the Python version
       - name: Install dependencies
-        run: pip install yagmail
+        run: pip install yagmail pandas
 
       - name: Send email
         run: |
