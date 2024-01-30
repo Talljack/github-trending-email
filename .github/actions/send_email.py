@@ -12,6 +12,7 @@ if __name__ == '__main__':
     import sys
     import json
     content = ''
+    print(sys.argv, sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     repo_data_str = sys.argv[5]
     print('repo_data_str', repo_data_str)
     repo_data_decoded_bytes = base64.urlsafe_b64decode(repo_data_str)
