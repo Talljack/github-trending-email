@@ -11,16 +11,6 @@ def format_html(content):
     html_content = """
     <html>
     <head>
-        <style>
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        </style>
     </head>
     <body>
     """
@@ -37,11 +27,11 @@ def format_language_table(language: str, repos):
     html_content = """
     <table>
     <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Language</th>
-        <th>Stars</th>
-        <th>Today's Stars</th>
+        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Title</th>
+        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Description</th>
+        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Language</th>
+        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Stars</th>
+        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Today's Stars</th>
     </tr>
     """
 
@@ -49,11 +39,11 @@ def format_language_table(language: str, repos):
     for repo in repos:
         html_content += f"""
         <tr>
-            <td><a class="link" href="{'https://github.com' + repo['link'] if repo['link'] else ""}">{repo['title']}</a></td>
-            <td>{repo['description']}</td>
-            <td>{repo['language']}</td>
-            <td>{repo['stars']}</td>
-            <td>{repo['todayStars']}</td>
+            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;font-size:18px;font-weight: bold;><a class="link" href="{'https://github.com' + repo['link'] if repo['link'] else ""}">{repo['title']}</a></td>
+            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;font-size:16px; color: #333;">{repo['description']}</td>
+            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: green;">{repo['language']}</td>
+            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: #4fb233; font-size: 16px;">{repo['stars']}</td>
+            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: #4fb233; font-size: 16px;">{repo['todayStars']}</td>
         </tr>
         """
 
