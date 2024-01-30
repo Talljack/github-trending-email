@@ -13,7 +13,7 @@ if __name__ == '__main__':
     import json
     content = ''
     repo_data_str = sys.argv[5]
-    repo_data_decoded_bytes = base64.b64decode(repo_data_str)
+    repo_data_decoded_bytes = base64.urlsafe_b64decode(repo_data_str)
     # print('repo_data_str',repo_data_str, type(repo_data_str))
     repo_data = json.loads(repo_data_decoded_bytes.decode('utf-8'))
 
