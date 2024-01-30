@@ -1,5 +1,6 @@
 # send_email.py
 import yagmail
+import json
 
 def send_email(username, password, recipient, subject, body):
     print('username', username, 'subject', subject)
@@ -11,6 +12,7 @@ if __name__ == '__main__':
     import sys
     content = ''
     repo_data = sys.argv[5]
+    repo_data = json.loads(repo_data)
     for key, repos in repo_data:
         for index, repo in repos:
             content += "{title}--{description}-{language}-{stars}-{todayStars}".format(repo.title, repo.description, repo.language, repo.stars, repo.todayStars)
