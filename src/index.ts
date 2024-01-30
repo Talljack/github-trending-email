@@ -11,6 +11,7 @@ const dateRangeEnum = ['daily', 'weekly', 'monthly'];
 
 type GithubRepoType = {
   title: string;
+  link: string;
   description: string;
   language: string;
   stars: string;
@@ -66,6 +67,7 @@ const getTrendingReposByLanguage = async (
         .find('h2 a')
         .text()
         .replace(/[\n\s]+/g, '');
+      const link = $(element).find('h2 a').attr('href') ?? '';
       const description = $(element).find('p').text().trim();
       const language = $(element)
         .find('[itemprop=programmingLanguage]')
@@ -78,7 +80,7 @@ const getTrendingReposByLanguage = async (
         .replace(/[\n\s]+/g, '');
       const todayStars = $(element).find('.float-sm-right').text().trim();
 
-      repos.push({ title, description, language, stars, todayStars });
+      repos.push({ title, description, language, stars, todayStars, link });
     });
 
     return repos;
@@ -110,10 +112,6 @@ async function getAllRepos(userOptions: UserOptions) {
 async function main() {
   const userOptions = getUserInputs();
   const data = await getAllRepos(userOptions);
-  console.log(
-    'encodedata',
-    Buffer.from(JSON.stringify(data)).toString('base64'),
-  );
   setOutput(
     'githubTrendingRepos',
     Buffer.from(JSON.stringify(data), 'utf-8').toString('base64'),
