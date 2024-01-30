@@ -1,15 +1,13 @@
 # send_email.py
 import yagmail
 import base64
-import pandas as pd
 
 def send_email(username, password, recipient, subject, body):
     yag = yagmail.SMTP(username, password)
     yag.send(to=recipient, subject=subject, contents=body)
     print('Email sent successfully')
 
-def format_language_html(language: str, repos):
-    # 构建 HTML 邮件内容
+def format_html(content):
     html_content = """
     <html>
     <head>
@@ -25,15 +23,26 @@ def format_language_html(language: str, repos):
         </style>
     </head>
     <body>
-        <h2>GitHub Trending Repos</h2>
-        <table>
-        <tr>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Language</th>
-            <th>Stars</th>
-            <th>Today's Stars</th>
-        </tr>
+    """
+    html_content += content
+    html_content += """
+    </body>
+    </html>
+    \n
+    """
+    return html_content
+
+def format_language_table(language: str, repos):
+    # 构建 HTML 邮件内容
+    html_content = """
+    <table>
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Language</th>
+        <th>Stars</th>
+        <th>Today's Stars</th>
+    </tr>
     """
 
     # 添加每个仓库的信息到表格
@@ -50,10 +59,7 @@ def format_language_html(language: str, repos):
 
     # 结束 HTML 文档
     html_content += """
-        </table>
-    </body>
-    </html>
-    \n
+    </table>
     """
     return language.capitalize() + ' Repos:\n' + html_content
 
@@ -67,10 +73,12 @@ if __name__ == '__main__':
     repo_data = json.loads(repo_data_decoded_bytes.decode('utf-8'))
     repo_tables_map = {}
     repo_items = repo_data.items()
+    # print('itms', len(repo_items))
     for key, repos in repo_items:
-        content += format_language_html(key if key else 'None', repos)
-    # print('content', content)
-    send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
+        content += format_language_table(key if key else 'None', repos)
+    html_content = format_html(content)
+    # print('content', html_content)
+    send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], html_content)
 
 
 

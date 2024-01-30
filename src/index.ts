@@ -111,6 +111,7 @@ async function getAllRepos(userOptions: UserOptions) {
 
 async function main() {
   const userOptions = getUserInputs();
+  console.log('userOptions', userOptions);
   const data = await getAllRepos(userOptions);
   setOutput(
     'githubTrendingRepos',
