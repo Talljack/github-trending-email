@@ -20,7 +20,7 @@ jobs:
         id: trending-repos
         env:
             token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
-        
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -30,4 +30,4 @@ jobs:
 
       - name: Send email
         run: |
-          python send_email.py ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }} yugang.cao12@gmail.com "Test github trending repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+          python actions/send_email.py ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }} yugang.cao12@gmail.com "Test github trending repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
