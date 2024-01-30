@@ -1,19 +1,16 @@
+# send_email.py
 import yagmail
-import sys
-username = sys.argv[1]
-password = sys.argv[2]
-repo_data = sys.argv[3]
 
-def send_email():
-    try:
-        content = ''
-        for key, repos in repo_data:
-            for index, repo in repos:
-                content += "{title}--{description}-{language}-{stars}-{todayStars}".format(repo.title, repo.description, repo.language, repo.stars, repo.todayStars)
-        yag = yagmail.SMTP('${{ secrets.GMAIL_USERNAME }}', '${{ secrets.GMAIL_PASSWORD }}')
-        yag.send(to='${{ secrets.GMAIL_USERNAME }}', subject='Github trending repos', contents=content)
-        print('Email sent successfully')
-    except Exception as e:
-        print(f'Failed to send email: {e}')
+def send_email(username, password, recipient, subject, body):
+    yag = yagmail.SMTP(username, password)
+    yag.send(to=recipient, subject=subject, contents=body)
+    print('Email sent successfully')
 
-send_email()
+if __name__ == '__main__':
+    import sys
+    content = ''
+    repo_data = sys.argv[5]
+    for key, repos in repo_data:
+        for index, repo in repos:
+            content += "{title}--{description}-{language}-{stars}-{todayStars}".format(repo.title, repo.description, repo.language, repo.stars, repo.todayStars)
+    send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
