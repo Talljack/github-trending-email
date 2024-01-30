@@ -110,6 +110,7 @@ async function getAllRepos(userOptions: UserOptions) {
 async function main() {
   const userOptions = getUserInputs();
   const data = await getAllRepos(userOptions);
+  console.log('encodedata', Buffer.from(JSON.stringify(data)).toString('base64'))
   setOutput(
     'githubTrendingRepos',
     Buffer.from(JSON.stringify(data)).toString('base64'),
