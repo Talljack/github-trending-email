@@ -110,7 +110,7 @@ async function getAllRepos(userOptions: UserOptions) {
 async function main() {
   const userOptions = getUserInputs();
   const data = await getAllRepos(userOptions);
-  setOutput('githubTrendingRepos', JSON.stringify(data));
+  setOutput('githubTrendingRepos', JSON.stringify(data).replace(/"/g, '\\"'));
   return data;
 }
 
