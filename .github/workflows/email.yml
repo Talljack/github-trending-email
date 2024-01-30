@@ -29,12 +29,4 @@ jobs:
           # 安装必要的 Python 库
           pip install yagmail
           # 使用 Python 脚本发送邮件
-          python -c "
-            import yagmail
-                try:
-                    yag = yagmail.SMTP('${{ secrets.GMAIL_USERNAME }}', '${{ secrets.GMAIL_PASSWORD }}')
-                    yag.send(to='${{ secrets.GMAIL_USERNAME }}', subject='Github trending repos', contents='This is a test email')
-                    print('Email sent successfully')
-                except Exception as e:
-                    print(f'Failed to send email: {e}')
-            "
+          python actions/sendEmail.yml -username=${{ secrets.GMAIL_USERNAME }} -password=${{ secrets.GMAIL_PASSWORD }} --repo-data=${{ steps.trending-repos.outputs.githubTrendingRepos }}
