@@ -1,9 +1,12 @@
 name: Send Email via Gmail
 
 on:
-    schedule:
-      # 每天 UTC 时间 11:00，如果你在东八区，这相当于晚上 7:00
-      - cron:  '0 11 * * *'
+    # schedule:
+    #   # 每天 UTC 时间 11:00，如果你在东八区，这相当于晚上 7:00
+    #   - cron:  '0 11 * * *'
+    push:
+        branches:
+            - main
 
 jobs:
   send-email:
@@ -13,9 +16,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get Trending repos
-        run: |
-            
-      
+        uses: talljack/github-trending-email@main
+        id: trending-repos
+        env:
+            token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
       - name: Send email
         env:
           GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
@@ -26,11 +30,11 @@ jobs:
           pip install yagmail
           # 使用 Python 脚本发送邮件
           python -c "
-import yagmail
-try:
-    yag = yagmail.SMTP('${{ secrets.GMAIL_USERNAME }}', '${{ secrets.GMAIL_PASSWORD }}')
-    yag.send(to='${{ secrets.GMAIL_USERNAME }}', subject='GitHub Actions Email', contents='Hello from GitHub Actions!')
-    print('Email sent successfully')
-except Exception as e:
-    print(f'Failed to send email: {e}')
-"
+            import yagmail
+                try:
+                    yag = yagmail.SMTP('${{ secrets.GMAIL_USERNAME }}', '${{ secrets.GMAIL_PASSWORD }}')
+                    yag.send(to='${{ secrets.GMAIL_USERNAME }}', subject='Github trending repos', contents='This is a test email')
+                    print('Email sent successfully')
+                except Exception as e:
+                    print(f'Failed to send email: {e}')
+            "
