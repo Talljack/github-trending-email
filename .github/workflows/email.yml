@@ -20,13 +20,12 @@ jobs:
         id: trending-repos
         env:
             token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'  # Specify the Python version
+      - name: Install dependencies
+        run: pip install yagmail
+
       - name: Send email
-        env:
-          GMAIL_USERNAME: ${{ secrets.GMAIL_USERNAME }}
-          GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
-        run: |
-          echo "Sending email..."
-          # 安装必要的 Python 库
-          pip install yagmail
-          # 使用 Python 脚本发送邮件
-          python actions/sendEmail.yml -username=${{ secrets.GMAIL_USERNAME }} -password=${{ secrets.GMAIL_PASSWORD }} --repo-data=${{ steps.trending-repos.outputs.githubTrendingRepos }}
+        run: python send_email.py ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }} yugang.cao12@gmail.com "Test github trending repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
