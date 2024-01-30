@@ -31,7 +31,9 @@ type UserOptions = {
 const getUserInputs = (): UserOptions => {
   const sendTime = getInput('sendTime') || '19:00';
   const languagesJson = getInput('languages') || '[]';
+  console.log('languagesJson', languagesJson);
   const languages = JSON.parse(languagesJson);
+  console.log('languages', languages);
   const dateRange = getInput('dateRange') || 'daily';
   if (!dateRangeEnum.includes(dateRange)) {
     setFailed(
