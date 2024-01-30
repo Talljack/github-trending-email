@@ -11,6 +11,17 @@ inputs:
     description: 'The time the email was sent'
     required: false
     default: '19:00'
+  languages:
+    description: 'Trending language repos'
+    required: false
+    default: '[]'
+  dateRange:
+    description: 'Trending repos time'
+    required: false
+    default: 'daily'
+outputs:
+  githubTrendingRepos:
+    description: 'All languages github trending repos'
 
 runs:
   using: 'node20'
