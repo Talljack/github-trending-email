@@ -30,4 +30,4 @@ jobs:
 
       - name: Send email
         run: |
-          python actions/send_email.py ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }} yugang.cao12@gmail.com "Test github trending repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+          python ./.github/actions/send_email.py ${{ secrets.GMAIL_USERNAME }} ${{ secrets.GMAIL_PASSWORD }} yugang.cao12@gmail.com "Test github trending repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
