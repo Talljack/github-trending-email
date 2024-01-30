@@ -1,6 +1,5 @@
 # send_email.py
 import yagmail
-import json
 
 def send_email(username, password, recipient, subject, body):
     print('username', username, 'subject', subject)
@@ -10,6 +9,7 @@ def send_email(username, password, recipient, subject, body):
 
 if __name__ == '__main__':
     import sys
+    import json
     content = ''
     repo_data_str = sys.argv[5]
     print('repo_data_str',repo_data_str, type(repo_data_str))
