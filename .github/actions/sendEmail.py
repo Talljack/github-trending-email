@@ -11,8 +11,12 @@ def send_email(username, password, recipient, subject, body):
 if __name__ == '__main__':
     import sys
     content = ''
-    repo_data = sys.argv[5]
-    repo_data = json.loads(repo_data)
+    repo_data_str = sys.argv[5]
+    print('repo_data_str',repo_data_str, type(repo_data_str))
+    repo_data = json.loads(repo_data_str)
+
+    print("repo_data", repo_data, type(repo_data))
+
     for key, repos in repo_data:
         for index, repo in repos:
             content += "{title}--{description}-{language}-{stars}-{todayStars}".format(repo.title, repo.description, repo.language, repo.stars, repo.todayStars)
