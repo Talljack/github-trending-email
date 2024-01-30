@@ -12,18 +12,16 @@ if __name__ == '__main__':
     import sys
     import json
     content = ''
-    print(sys.argv, sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
     repo_data_str = sys.argv[5]
-    print('repo_data_str', repo_data_str)
     repo_data_decoded_bytes = base64.urlsafe_b64decode(repo_data_str)
-    # print('repo_data_str',repo_data_str, type(repo_data_str))
     repo_data = json.loads(repo_data_decoded_bytes.decode('utf-8'))
 
-    print("repo_data", repo_data, type(repo_data))
-
-    for key, repos in repo_data:
-        for index, repo in repos:
-            content += "{title}--{description}-{language}-{stars}-{todayStars}".format(repo.title, repo.description, repo.language, repo.stars, repo.todayStars)
-
-    print('content', content)
+    repo_items = repo_data.items()
+    for key, repos in repo_items:
+        for i, repo in enumerate(repos):
+            repo_item_str = "{}--{}-{}-{}-{}\n".format(repo['title'], repo['description'], repo['language'], repo['stars'], repo['todayStars'])
+            content += repo_item_str
     send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
+
+
+
