@@ -116,7 +116,7 @@ async function main() {
   );
   setOutput(
     'githubTrendingRepos',
-    Buffer.from(JSON.stringify(data)).toString('base64'),
+    Buffer.from(JSON.stringify(data), 'utf-8').toString('base64'),
   );
   return data;
 }
