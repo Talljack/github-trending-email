@@ -3,6 +3,7 @@ import yagmail
 import base64
 
 def send_email(username, password, recipient, subject, body):
+    print("body", body)
     yag = yagmail.SMTP(username, password)
     yag.send(to=recipient, subject=subject, contents=body)
     print('Email sent successfully')
@@ -50,7 +51,6 @@ if __name__ == '__main__':
     repo_items = repo_data.items()
     for key, repos in repo_items:
         content += format_language_table(key if key else 'None', repos)
-    # html_content = format_html(content)
     send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
 
 
