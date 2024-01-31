@@ -5,7 +5,7 @@ import base64
 def send_email(username, password, recipient, subject, body):
     print("body", body)
     yag = yagmail.SMTP(username, password)
-    yag.send(to=recipient, subject=subject, contents=body, prettify_html=False)
+    yag.send(to=recipient, subject=subject, contents=body)
     print('Email sent successfully')
 
 def format_language_table(language: str, repos):
@@ -37,7 +37,7 @@ def format_language_table(language: str, repos):
     html_content += """
     </table>
     """
-    return html_content
+    return language + 'Repos:\n' + html_content
 
 if __name__ == '__main__':
     import sys
