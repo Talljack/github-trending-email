@@ -37,7 +37,7 @@ def format_language_table(language: str, repos):
     html_content += """
     </table>
     """
-    return html_content
+    return language + 'Repos:\n' + html_content
 
 if __name__ == '__main__':
     import sys
