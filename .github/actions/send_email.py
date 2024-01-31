@@ -37,7 +37,7 @@ def format_language_table(language: str, repos):
     html_content += """
     </table>
     """
-    return language + 'Repos:\n' + html_content
+    return language.capitalize() + ' Repos:' + html_content
 
 if __name__ == '__main__':
     import sys
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     repo_tables_map = {}
     repo_items = repo_data.items()
     for key, repos in repo_items:
-        content += format_language_table(key if key else 'None', repos)
+        content += format_language_table(key if key else 'All', repos)
     send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
 
 
