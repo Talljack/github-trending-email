@@ -63,11 +63,9 @@ if __name__ == '__main__':
     repo_data = json.loads(repo_data_decoded_bytes.decode('utf-8'))
     repo_tables_map = {}
     repo_items = repo_data.items()
-    # print('itms', len(repo_items))
     for key, repos in repo_items:
         content += format_language_table(key if key else 'None', repos)
     html_content = format_html(content)
-    # print('content', html_content)
     send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], html_content)
 
 

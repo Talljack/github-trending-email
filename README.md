@@ -10,9 +10,9 @@ You can use this action to get Github trending Repos and send it to your email e
 name: Send Github Trending Repos via Gmail
 
 on:
-    schedule:
-      # 每天 UTC 时间 11:00，如果你在东八区，这相当于晚上 7:00
-      - cron:  '0 1,12 * * *'
+  schedule:
+    # 每天 UTC 时间 11:00，如果你在东八区，这相当于晚上 7:00
+    - cron: '0 1,12 * * *'
 
 jobs:
   send-email:
@@ -25,14 +25,14 @@ jobs:
         uses: talljack/github-trending-email@main
         id: trending-repos
         env:
-            token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
+          token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
         with:
           languages: '["", "typescript", "rust", "go", "swift", "python", "vue"]'
 
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'  # Specify the Python version
+          python-version: '3.x' # Specify the Python version
       - name: Install dependencies
         run: pip install yagmail
         # Maybe you want to send Email
@@ -48,10 +48,9 @@ jobs:
 - `dateRange` - What time do you want to query, It has three values `"daily"`、`"weekly"` and `"monthly"`, The default value is `"daily"`, you can choose what time you want to get it.
 
 ## Outputs
-- `githubTrendingRepos` - The GitHub Trending Repos J**SON String** with **base64 encode, you just need to base64 decode and use it.
+
+- `githubTrendingRepos` - The GitHub Trending Repos J**SON String** with \*\*base64 encode, you just need to base64 decode and use it.
 
 ## License
 
 Licensed under the [MIT License](LICENSE).
-
-
