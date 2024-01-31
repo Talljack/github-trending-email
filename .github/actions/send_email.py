@@ -36,7 +36,7 @@ def format_language_table(language: str, repos):
     html_content += """
     </table>
     """
-    return language.capitalize() + ' Repos:' + html_content
+    return html_content
 
 if __name__ == '__main__':
     import sys
