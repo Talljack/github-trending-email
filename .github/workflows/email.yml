@@ -2,7 +2,7 @@ name: Send Github Trending Repos via Gmail
 
 on:
   schedule:
-    - cron:  '30 3 * * *'
+    - cron:  '5 2,12 * * *'
   workflow_dispatch:
     inputs:
       logLevel:
