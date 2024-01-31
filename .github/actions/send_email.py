@@ -7,31 +7,16 @@ def send_email(username, password, recipient, subject, body):
     yag.send(to=recipient, subject=subject, contents=body)
     print('Email sent successfully')
 
-def format_html(content):
-    html_content = """
-    <html>
-    <head>
-    </head>
-    <body>
-    """
-    html_content += content
-    html_content += """
-    </body>
-    </html>
-    \n
-    """
-    return html_content
-
 def format_language_table(language: str, repos):
     # 构建 HTML 邮件内容
     html_content = """
     <table>
     <tr>
-        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Title</th>
-        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Description</th>
-        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Language</th>
-        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Stars</th>
-        <th style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;">Today's Stars</th>
+        <th style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;">Title</th>
+        <th style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;">Description</th>
+        <th style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;">Language</th>
+        <th style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;">Stars</th>
+        <th style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;">Today's Stars</th>
     </tr>
     """
 
@@ -39,11 +24,11 @@ def format_language_table(language: str, repos):
     for repo in repos:
         html_content += f"""
         <tr>
-            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;font-size:18px;font-weight: bold;><a class="link" href="{'https://github.com' + repo['link'] if repo['link'] else ""}">{repo['title']}</a></td>
-            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;font-size:16px; color: #333;">{repo['description']}</td>
-            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: green;">{repo['language']}</td>
-            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: #4fb233; font-size: 16px;">{repo['stars']}</td>
-            <td style="border: 1px solid black;border-collapse: collapse;padding: 10px;text-align: left;color: #4fb233; font-size: 16px;">{repo['todayStars']}</td>
+            <td style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;font-size:18px;font-weight: bold;"><a class="link" href="{'https://github.com' + repo['link'] if repo['link'] else ""}">{repo['title']}</a></td>
+            <td style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;font-size:16px; color: #333;">{repo['description']}</td>
+            <td style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;color: green;">{repo['language']}</td>
+            <td style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;color: #4fb233; font-size: 16px;">{repo['stars']}</td>
+            <td style="border: 1px solid #ccc;border-collapse: collapse;padding: 8px;text-align: left;color: #4fb233; font-size: 16px;">{repo['todayStars']}</td>
         </tr>
         """
 
@@ -51,7 +36,7 @@ def format_language_table(language: str, repos):
     html_content += """
     </table>
     """
-    return language.capitalize() + ' Repos:\n' + html_content
+    return language.capitalize() + ' Repos:' + html_content
 
 if __name__ == '__main__':
     import sys
@@ -65,8 +50,8 @@ if __name__ == '__main__':
     repo_items = repo_data.items()
     for key, repos in repo_items:
         content += format_language_table(key if key else 'None', repos)
-    html_content = format_html(content)
-    send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], html_content)
+    # html_content = format_html(content)
+    send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
 
 
 
