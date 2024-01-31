@@ -2,8 +2,13 @@ name: Send Email via Gmail
 
 on:
   schedule:
-    # * is a special character in YAML so you have to quote this string
     - cron:  '0 3,12 * * *'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
 
 jobs:
   send-email:
@@ -11,6 +16,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set current date with timezone
+        run: echo "CURRENT_DATE=$(TZ='Asia/Shanghai' date +'%Y-%m-%d')" >> $GITHUB_ENV
 
       - name: Get Trending repos
         uses: talljack/github-trending-email@main
@@ -29,4 +37,4 @@ jobs:
 
       - name: Send email
         run: |
-          python ./.github/actions/send_email.py "${{ secrets.GMAIL_USERNAME }}" "${{ secrets.GMAIL_PASSWORD }}" "yugang.cao12@gmail.com" "Github Trending Repos" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+          python ./.github/actions/send_email.py "${{ secrets.GMAIL_USERNAME }}" "${{ secrets.GMAIL_PASSWORD }}" "yugang.cao12@gmail.com" "Github Trending Repos - $CURRENT_DATE" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
