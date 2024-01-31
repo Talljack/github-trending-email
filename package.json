@@ -6,6 +6,7 @@
   "main": "lib/index.js",
   "module": "src/index.ts",
   "type": "module",
+  "packageManager": "pnpm@8.15.0",
   "scripts": {
     "build": "ncc build src/index.ts -o lib -m",
     "lint": "eslint src/**",
@@ -15,9 +16,9 @@
   },
   "devDependencies": {
     "@octokit/types": "^12.4.0",
-    "@types/node": "^20.11.10",
-    "@typescript-eslint/eslint-plugin": "^6.19.1",
-    "@typescript-eslint/parser": "^6.19.1",
+    "@types/node": "^20.11.13",
+    "@typescript-eslint/eslint-plugin": "^6.20.0",
+    "@typescript-eslint/parser": "^6.20.0",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
@@ -33,11 +34,8 @@
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
-    "@google-cloud/local-auth": "3.0.1",
     "axios": "^1.6.7",
-    "cheerio": "1.0.0-rc.12",
-    "googleapis": "131",
-    "moment": "^2.30.1"
+    "cheerio": "1.0.0-rc.12"
   },
   "license": "MIT",
   "keywords": [
@@ -47,7 +45,7 @@
     "github action"
   ],
   "simple-git-hooks": {
-    "pre-commit": "bun run lint && bun run format"
+    "pre-commit": "pnpm run lint && pnpm run format"
   },
   "engines": {
     "node": ">=18"
