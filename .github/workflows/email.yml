@@ -1,8 +1,8 @@
-name: Send Email via Gmail
+name: Send Github Trending Repos via Gmail
 
 on:
   schedule:
-    - cron:  '0 3,12 * * *'
+    - cron:  '30 3 * * *'
   workflow_dispatch:
     inputs:
       logLevel:
