@@ -1,12 +1,9 @@
 name: Send Email via Gmail
 
 on:
-    schedule:
-      # 每天 UTC 时间 11:00，如果你在东八区，这相当于晚上 7:00
-      - cron:  '0 1,12 * * *'
-    # push:
-    #     branches:
-    #         - main
+  schedule:
+    # 每天的 UTC 时间 8:00 和 19:00
+    - cron:  '0 2,12 * * *'
 
 jobs:
   send-email:
