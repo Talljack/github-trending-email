@@ -15,12 +15,12 @@
     "postinstall": "simple-git-hooks"
   },
   "devDependencies": {
-    "@octokit/types": "^12.5.0",
-    "@types/node": "^20.11.19",
+    "@octokit/types": "^12.6.0",
+    "@types/node": "^20.11.20",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "@vercel/ncc": "^0.38.1",
-    "eslint": "^8.56.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
     "eslint-plugin-import": "^2.29.1",
