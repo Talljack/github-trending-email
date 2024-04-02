@@ -15,7 +15,7 @@
     "postinstall": "simple-git-hooks"
   },
   "devDependencies": {
-    "@octokit/types": "^12.6.0",
+    "@octokit/types": "^13.0.0",
     "@types/node": "^20.12.2",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
