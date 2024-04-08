@@ -20,8 +20,8 @@ dependencies:
 
 devDependencies:
   '@octokit/types':
-    specifier: ^13.1.0
-    version: 13.1.0
+    specifier: ^13.2.0
+    version: 13.2.0
   '@types/node':
     specifier: ^20.12.5
     version: 20.12.5
@@ -252,8 +252,8 @@ packages:
     resolution: {integrity: sha512-EtqRBEjp1dL/15V7WiX5LJMIxxkdiGJnabzYx5Apx4FkQIFgAfKumXeYAqqJCj1s+BMX4cPFIFC4OLCR6stlnA==}
     dev: false
 
-  /@octokit/openapi-types@21.0.0:
-    resolution: {integrity: sha512-B6/NBvsNQT5UWYWSFcUT55XTMZBHyflNke7Ryvhs3dLe3I2TTPwpGPMib70YS1Ha5Iccc5CtXTLU7lHstC5e3Q==}
+  /@octokit/openapi-types@22.0.0:
+    resolution: {integrity: sha512-kWzSxSIBjCtwrT8/O/A/nrSjmHvR5I9GGTHPyBU19VuEae+QZfaPnnfLwXgV56n51xHN3U2dYy8zh/kO9/39ig==}
     dev: true
 
   /@octokit/plugin-paginate-rest@9.1.5(@octokit/core@5.1.0):
@@ -301,10 +301,10 @@ packages:
       '@octokit/openapi-types': 20.0.0
     dev: false
 
-  /@octokit/types@13.1.0:
-    resolution: {integrity: sha512-nBwAFOYqVUUJ2AZFK4ZzESQptaAVqdTDKk8gE0Xr0o99WuPDSrhUC38x0F40xD9OUxXhOOuZKWNNVVLPSHQDvQ==}
+  /@octokit/types@13.2.0:
+    resolution: {integrity: sha512-K4rpfbIQLe4UimS/PWZAcImhZUC80lhe2f1NpAaaTulPJXv54QIAFFCQEEbdQdqTV/745QDmdvp8NI49LaI00A==}
     dependencies:
-      '@octokit/openapi-types': 21.0.0
+      '@octokit/openapi-types': 22.0.0
     dev: true
 
   /@pkgjs/parseargs@0.11.0:
