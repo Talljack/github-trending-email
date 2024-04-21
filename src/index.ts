@@ -56,8 +56,7 @@ const getTrendingReposByLanguage = async (
     let url
     if (language)
       url = `https://github.com/trending/${language}?since=${dateRange}`
-    else
-      url = `https://github.com/trending?since=${dateRange}`
+    else url = `https://github.com/trending?since=${dateRange}`
 
     const { data } = await axiosInstance.get(url)
     const $ = load(data)
