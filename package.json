@@ -19,9 +19,8 @@
   },
   "scripts": {
     "build": "ncc build src/index.ts -o lib -m",
-    "lint": "eslint src/**",
-    "lint:fix": "eslint --fix src/**",
-    "format": "prettier --write src/** action.yml README.md",
+    "lint": "eslint --fix src/**",
+    "format": "prettier --write action.yml README.md",
     "format:check": "prettier --check src/** action.yml README.md",
     "postinstall": "simple-git-hooks"
   },
@@ -50,6 +49,6 @@
     "typescript": "^5.4.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm run lint:fix && pnpm run format"
+    "pre-commit": "pnpm run lint && pnpm run format"
   }
 }
