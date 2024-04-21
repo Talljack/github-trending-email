@@ -19,9 +19,7 @@
   },
   "scripts": {
     "build": "ncc build src/index.ts -o lib -m",
-    "lint": "eslint --fix src/**",
-    "format": "prettier --write action.yml README.md",
-    "format:check": "prettier --check src/** action.yml README.md",
+    "lint": "eslint . --fix",
     "postinstall": "simple-git-hooks"
   },
   "dependencies": {
@@ -33,14 +31,8 @@
   "devDependencies": {
     "@octokit/types": "^13.4.1",
     "@types/node": "^20.12.7",
-    "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "@typescript-eslint/parser": "^7.7.0",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^9.1.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.29.1",
-    "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.11.1",
     "talljack-eslint-config": "^0.2.1",
@@ -49,6 +41,6 @@
     "typescript": "^5.4.5"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm run lint && pnpm run format"
+    "pre-commit": "pnpm run lint"
   }
 }
