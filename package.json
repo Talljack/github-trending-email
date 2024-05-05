@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.2",
   "private": "true",
-  "packageManager": "pnpm@9.0.4",
+  "packageManager": "pnpm@9.0.6",
   "description": "Github trending repos send to your email every day",
   "license": "MIT",
   "keywords": [
@@ -29,13 +29,13 @@
     "cheerio": "1.0.0-rc.12"
   },
   "devDependencies": {
-    "@octokit/types": "^13.4.1",
-    "@types/node": "^20.12.7",
+    "@octokit/types": "^13.5.0",
+    "@types/node": "^20.12.8",
     "@vercel/ncc": "^0.38.1",
-    "eslint": "^9.1.0",
+    "eslint": "^9.2.0",
     "rimraf": "^5.0.5",
     "simple-git-hooks": "^2.11.1",
-    "talljack-eslint-config": "^0.2.1",
+    "talljack-eslint-config": "^0.2.4",
     "ts-node": "^10.9.2",
     "tslib": "^2.6.2",
     "typescript": "^5.4.5"
