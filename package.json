@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@octokit/types": "^13.5.0",
-    "@types/node": "^20.12.10",
+    "@types/node": "^20.12.11",
     "@vercel/ncc": "^0.38.1",
     "eslint": "^9.2.0",
     "rimraf": "^5.0.5",
