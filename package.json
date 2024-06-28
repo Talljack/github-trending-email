@@ -32,7 +32,7 @@
     "@octokit/types": "^13.5.0",
     "@types/node": "^20.13.0",
     "@vercel/ncc": "^0.38.1",
-    "eslint": "^9.4.0",
+    "eslint": "^9.6.0",
     "rimraf": "^5.0.7",
     "simple-git-hooks": "^2.11.1",
     "talljack-eslint-config": "^0.2.6",
