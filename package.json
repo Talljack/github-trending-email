@@ -37,7 +37,7 @@
     "simple-git-hooks": "^2.11.1",
     "talljack-eslint-config": "^0.2.6",
     "ts-node": "^10.9.2",
-    "tslib": "^2.6.2",
+    "tslib": "^2.7.0",
     "typescript": "^5.4.5"
   },
   "simple-git-hooks": {
