@@ -3,10 +3,6 @@ import yagmail
 import base64
 
 def send_email(username, password, recipient, subject, body):
-    print("username", username)
-    print("password", password)
-    print("recipient", recipient)
-    print("subject", subject)
     print("body", body)
     yag = yagmail.SMTP(username, password)
     yag.send(to=recipient, subject=subject, contents=body, prettify_html=False)
