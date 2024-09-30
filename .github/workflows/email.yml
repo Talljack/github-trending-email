@@ -2,7 +2,7 @@ name: Send Github Trending Repos via Gmail
 
 on:
   schedule:
-    - cron:  '5 2,12 * * *'
+    - cron: '0 11 * * *'
 
   push:
     branches:
@@ -47,6 +47,7 @@ jobs:
 
       - name: Write github trending repos
         run: |
+          python ./.github/actions/write_github_trending.py $CURRENT_DATE ${{ steps.trending-repos.outputs.githubTrendingRepos }}
 
       - name: Commit and push if changed
         run: |
