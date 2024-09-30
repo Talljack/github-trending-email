@@ -47,4 +47,11 @@ jobs:
 
       - name: Write github trending repos
         run: |
-          python ./.github/actions/write_github_trending.py $CURRENT_DATE ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+
+      - name: Commit and push if changed
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add .
+          git commit -m "Update GitHub trending repos" || exit 0
+          git push
