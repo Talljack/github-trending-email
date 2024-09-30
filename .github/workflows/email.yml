@@ -34,15 +34,6 @@ jobs:
         with:
           languages: '["", "typescript", "rust", "go", "swift", "python", "vue"]'
 
-      - name: Write Trending repos to file
-        # 将每日的 trending repos 写入文件夹的json文件中比如 trending-repos-2024-03-01.json
-        # 如果文件夹不存在，则创建文件夹
-        run: |
-          if [ ! -d "github-trending-repos" ]; then
-            mkdir github-trending-repos
-          fi
-          echo ${{ steps.trending-repos.outputs.githubTrendingRepos }} > github-trending-repos/github-trending-repos-${{ steps.current-date.outputs.CURRENT_DATE }}.json
-
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -53,3 +44,7 @@ jobs:
       - name: Send email
         run: |
           python ./.github/actions/send_email.py "${{ secrets.GMAIL_USERNAME }}" "${{ secrets.GMAIL_PASSWORD }}" "yugang.cao12@gmail.com" "Github Trending Repos - $CURRENT_DATE" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+
+      - name: Write github trending repos
+        run: |
+          python ./.github/actions/write_github_trending.py $CURRENT_DATE ${{ steps.trending-repos.outputs.githubTrendingRepos }}
