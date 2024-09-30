@@ -49,11 +49,6 @@ if __name__ == '__main__':
     repo_data = json.loads(repo_data_decoded_bytes.decode('utf-8'))
     repo_tables_map = {}
     repo_items = repo_data.items()
-    # write to github-trending-repos/github-trending-repos-${{ steps.current-date.outputs.CURRENT_DATE }}.json
-    if not os.path.exists('github-trending-repos'):
-        os.makedirs('github-trending-repos')
-    with open(f'github-trending-repos/github-trending-repos-{sys.argv[4]}.json', 'w') as f:
-        json.dump(repo_data, f)
     for key, repos in repo_items:
         content += format_language_table(key if key else 'All', repos)
     send_email(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], content)
