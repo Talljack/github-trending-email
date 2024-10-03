@@ -29,7 +29,7 @@
     "cheerio": "1.0.0"
   },
   "devDependencies": {
-    "@octokit/types": "^13.6.0",
+    "@octokit/types": "^13.6.1",
     "@types/node": "^22.7.4",
     "@vercel/ncc": "^0.38.2",
     "eslint": "^9.11.1",
