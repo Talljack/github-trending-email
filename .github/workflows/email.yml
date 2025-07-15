@@ -32,7 +32,7 @@ jobs:
         env:
             token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
         with:
-          languages: '["", "typescript", "rust", "go", "swift", "python", "vue"]'
+          languages: '["", "typescript", "python", "go", "swift", "rust", "vue"]'
 
       - name: Set up Python
         uses: actions/setup-python@v2
