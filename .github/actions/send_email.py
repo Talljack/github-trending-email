@@ -52,7 +52,7 @@ def format_papers(papers):
 def format_indie(revenues):
     if not revenues:
         return ""
-    rows = ''.join([f'<tr><td style="{S["td"]}">{r.get("rank","-")}</td><td style="{S["td"]}">{r["name"]}</td><td style="{S["td"]}">${r.get("arr",0):,.0f}</td><td style="{S["td"]}">${r.get("mrr",0):,.0f}/mo</td></tr>' for r in revenues[:10]])
+    rows = ''.join([f'<tr><td style="{S["td"]}">{r.get("rank","-")}</td><td style="{S["td"]}"><a href="{r.get("url","#")}" style="color:#10b981;">{r["name"]}</a></td><td style="{S["td"]}">${r.get("arr",0):,.0f}</td><td style="{S["td"]}">${r.get("mrr",0):,.0f}/mo</td></tr>' for r in revenues[:10]])
     return f'<h2 style="color:#10b981;">💰 Indie Revenue</h2><table style="width:100%;border-collapse:collapse;"><tr><th style="{S["th"]}">#</th><th style="{S["th"]}">Product</th><th style="{S["th"]}">ARR</th><th style="{S["th"]}">MRR</th></tr>{rows}</table>'
 
 def format_email(data):

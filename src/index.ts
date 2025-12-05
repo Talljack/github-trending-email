@@ -73,6 +73,7 @@ interface IndieRevenue {
   rank: number
   name: string
   description: string
+  url: string
   arr: number
   mrr: number
   founders: string[]
@@ -354,6 +355,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
           rank: index + 1,
           name: product.name || 'Unknown',
           description: product.tagline || product.description || '',
+          url: product.url || product.website || '#',
           arr: (product.revenue || 0) * 12,
           mrr: product.revenue || 0,
           founders: product.founders?.map((f: any) => f.name) || [],
@@ -379,6 +381,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 1,
       name: 'Pieter Levels Projects',
       description: 'nomadlist.com, remoteok.com, photoai.com - Solo founder building multiple $1M+ ARR products',
+      url: 'https://nomadlist.com',
       arr: 3000000,
       mrr: 250000,
       founders: ['Pieter Levels'],
@@ -388,6 +391,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 2,
       name: 'Carrd',
       description: 'Simple, free, fully responsive one-page sites for pretty much anything',
+      url: 'https://carrd.co',
       arr: 1000000,
       mrr: 83000,
       founders: ['AJ'],
@@ -397,6 +401,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 3,
       name: 'Plausible Analytics',
       description: 'Simple, open-source, lightweight and privacy-friendly Google Analytics alternative',
+      url: 'https://plausible.io',
       arr: 800000,
       mrr: 66000,
       founders: ['Uku Täht', 'Marko Saric'],
@@ -406,6 +411,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 4,
       name: 'Buttondown',
       description: 'The easiest way to start and grow your newsletter',
+      url: 'https://buttondown.email',
       arr: 600000,
       mrr: 50000,
       founders: ['Justin Duke'],
@@ -415,6 +421,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 5,
       name: 'Fathom Analytics',
       description: 'Simple, privacy-focused website analytics',
+      url: 'https://usefathom.com',
       arr: 500000,
       mrr: 42000,
       founders: ['Jack Ellis', 'Paul Jarvis'],
@@ -424,6 +431,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 6,
       name: 'Transistor.fm',
       description: 'Podcast hosting and analytics',
+      url: 'https://transistor.fm',
       arr: 400000,
       mrr: 33000,
       founders: ['Justin Jackson', 'Jon Buda'],
@@ -433,6 +441,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 7,
       name: 'Bannerbear',
       description: 'Auto-generate social media visuals, ecommerce banners, and more',
+      url: 'https://www.bannerbear.com',
       arr: 350000,
       mrr: 29000,
       founders: ['Jon Yongfook'],
@@ -442,6 +451,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 8,
       name: 'Simple Analytics',
       description: 'Simple, clean, and privacy-friendly analytics',
+      url: 'https://simpleanalytics.com',
       arr: 300000,
       mrr: 25000,
       founders: ['Adriaan van Rossum'],
@@ -451,6 +461,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 9,
       name: 'Mailbrew',
       description: 'Your personal daily digest with your favorite content',
+      url: 'https://mailbrew.com',
       arr: 250000,
       mrr: 21000,
       founders: ['Fabrizio Rinaldi', 'Francesco Di Lorenzo'],
@@ -460,6 +471,7 @@ async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
       rank: 10,
       name: 'Logology',
       description: 'AI-powered logo maker for startups',
+      url: 'https://www.logology.co',
       arr: 200000,
       mrr: 17000,
       founders: ['Dawid Tkocz'],
