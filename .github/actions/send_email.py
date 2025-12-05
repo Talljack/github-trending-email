@@ -17,14 +17,13 @@ def uid():
     return ''.join(random.choices(string.ascii_lowercase, k=4))
 
 def format_email(data):
-    # Use completely different structure for each section to avoid Gmail folding
     html = f'''<html><body style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#fafafa;">
 <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px;border-radius:12px;margin-bottom:20px;">
 <h1 style="color:#fff;text-align:center;margin:0;">🔥 Tech Trending Daily</h1>
 <p style="color:#e0e0e0;text-align:center;margin:10px 0 0 0;">{uid()}</p>
 </div>'''
 
-    # GitHub Trending - use cards layout
+    # GitHub Trending - All languages with detailed cards
     if 'githubTrending' in data:
         gh = data['githubTrending']
         all_repos = gh.get('', gh.get('all', gh.get('All', [])))
@@ -34,23 +33,30 @@ def format_email(data):
             html += '<h2 style="color:#fff;margin:0 0 15px 0;">📦 GitHub Trending - All</h2>'
             for i, r in enumerate(all_repos[:10]):
                 desc = (r.get("description","") or "")[:70]
-                html += f'<div style="background:#{'2d333b' if i%2==0 else '22272e'};padding:12px;margin:5px 0;border-radius:4px;border-left:3px solid #58a6ff;">'
+                html += f'<div style="background:#{"2d333b" if i%2==0 else "22272e"};padding:12px;margin:5px 0;border-radius:4px;border-left:3px solid #58a6ff;">'
                 html += f'<a href="https://github.com{r["link"]}" style="color:#58a6ff;font-weight:bold;text-decoration:none;">{r["title"]}</a>'
                 html += f'<span style="color:#8b949e;float:right;">⭐{r["stars"]} | +{r["todayStars"]}</span>'
                 html += f'<p style="color:#8b949e;margin:5px 0 0 0;font-size:13px;">{desc}</p></div>'
             html += '</div>'
         
-        # Other languages
+        # Other languages - also detailed
+        lang_colors = {'typescript':'#3178c6','python':'#3572A5','go':'#00ADD8','rust':'#dea584','javascript':'#f1e05a'}
         for lang in sorted([k for k in gh.keys() if k and k.lower() not in ['all', '']])[:3]:
             repos = gh[lang][:10]
-            color = {'typescript':'#3178c6','python':'#3572A5','go':'#00ADD8','rust':'#dea584','javascript':'#f1e05a'}.get(lang.lower(),'#6e7681')
+            color = lang_colors.get(lang.lower(),'#6e7681')
             html += f'<div style="background:#1a1a2e;padding:15px;border-radius:8px;margin-bottom:10px;border-top:3px solid {color};" id="lang-{uid()}">'
             html += f'<h3 style="color:{color};margin:0 0 10px 0;">📦 {lang.capitalize()}</h3>'
-            for r in repos:
-                html += f'<div style="padding:8px 0;border-bottom:1px solid #333;"><a href="https://github.com{r["link"]}" style="color:#e0e0e0;text-decoration:none;">{r["title"]}</a> <span style="color:#888;">⭐{r["stars"]}</span></div>'
+            for i, r in enumerate(repos):
+                desc = (r.get("description","") or "")[:60]
+                html += f'<div style="padding:10px;margin:5px 0;background:#{"252540" if i%2==0 else "1e1e35"};border-radius:4px;">'
+                html += f'<a href="https://github.com{r["link"]}" style="color:#e0e0e0;text-decoration:none;font-weight:bold;">{r["title"]}</a>'
+                html += f'<span style="color:{color};float:right;">⭐{r["stars"]} | +{r["todayStars"]}</span>'
+                if desc:
+                    html += f'<p style="color:#888;margin:5px 0 0 0;font-size:12px;">{desc}</p>'
+                html += '</div>'
             html += '</div>'
 
-    # HuggingFace - orange theme with different structure
+    # HuggingFace - orange theme
     models = data.get('huggingFaceModels', [])
     if models:
         html += f'<div style="background:#fff3e0;padding:20px;border-radius:8px;margin:20px 0;border-left:5px solid #ff9800;" id="hf-{uid()}">'
@@ -94,16 +100,33 @@ def format_email(data):
             html += f'<li style="padding:8px 0;color:#5e35b1;"><a href="{p["url"]}" style="color:#512da8;text-decoration:none;">{p["title"]}</a><br/><small style="color:#7e57c2;">{authors} • ❤️{p.get("likes",0)}</small></li>'
         html += '</ol></div>'
 
-    # Indie Revenue - green theme with table
+    # Indie Revenue - green theme with detailed cards including links and descriptions
     revenues = data.get('indieRevenue', [])
     if revenues:
         html += f'<div style="background:#e8f5e9;padding:20px;border-radius:8px;margin:20px 0;" id="indie-{uid()}">'
         html += '<h2 style="color:#2e7d32;margin:0 0 15px 0;">💰 Indie Hackers Revenue Report</h2>'
-        html += '<table style="width:100%;border-collapse:separate;border-spacing:0 5px;">'
-        html += '<tr><th style="background:#c8e6c9;padding:12px;text-align:left;border-radius:4px 0 0 4px;">#</th><th style="background:#c8e6c9;padding:12px;text-align:left;">Product</th><th style="background:#c8e6c9;padding:12px;text-align:right;">ARR</th><th style="background:#c8e6c9;padding:12px;text-align:right;border-radius:0 4px 4px 0;">MRR</th></tr>'
-        for r in revenues[:10]:
-            html += f'<tr><td style="background:#f1f8e9;padding:10px;">{r.get("rank","-")}</td><td style="background:#f1f8e9;padding:10px;font-weight:bold;color:#1b5e20;">{r["name"]}</td><td style="background:#f1f8e9;padding:10px;text-align:right;">${r.get("arr",0):,.0f}</td><td style="background:#f1f8e9;padding:10px;text-align:right;color:#2e7d32;">${r.get("mrr",0):,.0f}/mo</td></tr>'
-        html += '</table></div>'
+        for i, r in enumerate(revenues[:10]):
+            url = r.get("url", "")
+            desc = r.get("description", "")[:80]
+            founders = ", ".join(r.get("founders", [])[:2]) if r.get("founders") else ""
+            bg = '#f1f8e9' if i%2==0 else '#e8f5e9'
+            html += f'<div style="background:{bg};padding:15px;margin:8px 0;border-radius:6px;border-left:4px solid #4caf50;">'
+            html += f'<div style="display:flex;justify-content:space-between;align-items:center;">'
+            html += f'<span style="background:#4caf50;color:#fff;padding:2px 8px;border-radius:10px;font-size:12px;">#{r.get("rank","-")}</span>'
+            html += f'<span style="color:#2e7d32;font-weight:bold;font-size:16px;">${r.get("mrr",0):,.0f}/mo</span>'
+            html += '</div>'
+            if url:
+                html += f'<h3 style="margin:10px 0 5px 0;"><a href="{url}" style="color:#1b5e20;text-decoration:none;">{r["name"]} ↗</a></h3>'
+            else:
+                html += f'<h3 style="margin:10px 0 5px 0;color:#1b5e20;">{r["name"]}</h3>'
+            if desc:
+                html += f'<p style="color:#558b2f;margin:5px 0;font-size:13px;">{desc}</p>'
+            html += f'<div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:#689f38;">'
+            html += f'<span>ARR: ${r.get("arr",0):,.0f}</span>'
+            if founders:
+                html += f'<span>👤 {founders}</span>'
+            html += '</div></div>'
+        html += '</div>'
 
     html += f'<p style="text-align:center;color:#999;font-size:12px;margin-top:30px;">Generated by Tech Trending Daily 🚀 [{uid()}]</p>'
     html += '</body></html>'
