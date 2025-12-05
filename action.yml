@@ -1,6 +1,6 @@
-name: 'Github Trending Repos Email'
+name: 'Tech Trending Daily'
 author: 'Talljack'
-description: 'To send github trending repos to your email'
+description: 'Get GitHub trending repos, AI models, tech news, and indie hacker insights delivered to your email'
 
 inputs:
   token:
@@ -12,21 +12,58 @@ inputs:
     required: false
     default: '19:00'
   languages:
-    description: 'Trending language repos'
+    description: 'GitHub trending language repos (JSON array)'
     required: false
     default: '[]'
   dateRange:
-    description: 'Trending repos time'
+    description: 'GitHub trending repos time range (daily, weekly, monthly)'
     required: false
     default: 'daily'
+  enableHuggingFace:
+    description: 'Enable fetching trending HuggingFace AI models'
+    required: false
+    default: 'true'
+  enableHackerNews:
+    description: 'Enable fetching top Hacker News stories'
+    required: false
+    default: 'true'
+  enableProductHunt:
+    description: 'Enable fetching Product Hunt products'
+    required: false
+    default: 'true'
+  enableAIPapers:
+    description: 'Enable fetching latest AI research papers'
+    required: false
+    default: 'true'
+  enableIndieHackers:
+    description: 'Enable fetching Indie Hackers revenue reports'
+    required: false
+    default: 'true'
+  itemLimit:
+    description: 'Number of items to fetch per category'
+    required: false
+    default: '10'
+
 outputs:
   githubTrendingRepos:
-    description: 'All languages github trending repos'
+    description: 'GitHub trending repos (base64 encoded JSON)'
+  trendingData:
+    description: 'All trending data combined (base64 encoded JSON)'
+  huggingFaceModels:
+    description: 'HuggingFace trending models (base64 encoded JSON)'
+  hackerNewsStories:
+    description: 'Hacker News top stories (base64 encoded JSON)'
+  productHuntProducts:
+    description: 'Product Hunt products (base64 encoded JSON)'
+  aiPapers:
+    description: 'Latest AI research papers (base64 encoded JSON)'
+  indieHackerReports:
+    description: 'Indie Hackers revenue reports (base64 encoded JSON)'
 
 runs:
   using: 'node20'
   main: 'lib/index.js'
 
 branding:
-  icon: 'code'
-  color: 'blue'
+  icon: 'trending-up'
+  color: 'purple'
