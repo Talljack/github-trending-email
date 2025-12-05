@@ -32,12 +32,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Playwright
-        run: npm install playwright
-
-      - name: Install Playwright browsers
-        run: npx playwright install chromium --with-deps
-
       - name: Get Trending Data
         uses: ./
         id: trending-repos

@@ -102,11 +102,12 @@ def format_devto_articles(articles):
     
     items = []
     for article in articles[:10]:
-        desc = (article.get('description', '') or '')[:100]
+        desc = (article.get('description', '') or '')[:150]
         tags = ' '.join([f'<span style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-size:11px;margin-right:4px;">#{tag}</span>' for tag in article.get('tags', [])[:3]])
         summary = generate_chinese_summary(article['title'], article.get('description', ''))
         summary_html = f'<div style="font-size:12px;color:#3b49df;margin-top:4px;">{summary}</div>' if summary else ''
-        items.append(f'<div style="padding:12px;border:1px solid #e1e4e8;border-radius:8px;margin-bottom:10px;"><a href="{article["url"]}" style="color:#3b49df;text-decoration:none;font-weight:600;font-size:15px;">{article["title"]}</a><div style="font-size:13px;color:#666;margin:6px 0;">{desc}...</div>{summary_html}<div style="font-size:12px;color:#999;margin-top:6px;">👤 {article["user"]["name"]} | ❤️ {article.get("publicReactionsCount", 0)} | 💬 {article.get("commentsCount", 0)}</div><div style="margin-top:6px;">{tags}</div></div>')
+        desc_suffix = '...' if len(article.get('description', '') or '') > 150 else ''
+        items.append(f'<div style="padding:12px;border:1px solid #e1e4e8;border-radius:8px;margin-bottom:10px;"><a href="{article["url"]}" style="color:#3b49df;text-decoration:none;font-weight:600;font-size:15px;">{article["title"]}</a><div style="font-size:13px;color:#666;margin:6px 0;">{desc}{desc_suffix}</div>{summary_html}<div style="font-size:12px;color:#999;margin-top:6px;">👤 {article["user"]["name"]} | ❤️ {article.get("publicReactionsCount", 0)} | 💬 {article.get("commentsCount", 0)}</div><div style="margin-top:6px;">{tags}</div></div>')
     
     html = '<h2 style="color:#3b49df;margin-top:30px;">📝 Dev.to Trending Articles</h2>'
     html += '<p style="color:#666;font-size:13px;margin-bottom:15px;">开发者社区热门技术文章</p>'
@@ -122,7 +123,9 @@ def format_ai_papers(papers):
     for paper in papers[:10]:
         authors_list = paper.get('authors', [])[:3]
         authors = ', '.join(authors_list) + (' et al.' if len(paper.get('authors', [])) > 3 else '')
-        abstract = (paper.get('abstract', '') or '')[:150] + '...'
+        abstract = (paper.get('abstract', '') or '')[:200]
+        if len(paper.get('abstract', '') or '') > 200:
+            abstract += '...'
         summary = generate_chinese_summary(paper['title'], paper.get('abstract', ''))
         summary_html = f'<div style="font-size:12px;color:#673ab7;margin-top:6px;font-weight:500;">{summary}</div>' if summary else ''
         items.append(f'<div style="padding:12px;border:1px solid #e1e4e8;border-radius:8px;margin-bottom:10px;background:#fafafa;"><a href="{paper["url"]}" style="color:#673ab7;text-decoration:none;font-weight:600;font-size:14px;">{paper["title"]}</a><div style="font-size:12px;color:#666;margin:4px 0;">👤 {authors}</div><div style="font-size:13px;color:#444;line-height:1.4;">{abstract}</div>{summary_html}<div style="font-size:11px;color:#999;margin-top:6px;">❤️ {paper.get("likes", 0)} likes | 📅 {paper.get("publishedDate", "")[:10]}</div></div>')
