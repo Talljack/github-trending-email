@@ -31,7 +31,7 @@
   "devDependencies": {
     "@octokit/types": "^14.1.0",
     "@types/node": "^24.0.14",
-    "@vercel/ncc": "^0.38.3",
+    "@vercel/ncc": "^0.38.4",
     "eslint": "^9.31.0",
     "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.13.0",
