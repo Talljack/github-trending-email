@@ -2,7 +2,7 @@ import https from 'https'
 import { getInput, setFailed, setOutput } from '@actions/core'
 import axios from 'axios'
 import { load } from 'cheerio'
-import { chromium } from 'playwright-core'
+import { chromium } from 'playwright'
 
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ keepAlive: true }),
