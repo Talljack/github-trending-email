@@ -17,28 +17,21 @@ def format_github_repos_table(language: str, repos):
     
     # Display name for language
     lang_display = language.capitalize() if language and language != 'All' else 'All Languages'
+    icon = '🌟' if lang_display == 'All Languages' else '📦'
     
-    html_content = f"""<h3 style="color: #24292e; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px;">{'🌟' if lang_display == 'All Languages' else '📦'} {lang_display} Repos</h3>
-<table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-<tr style="background-color: #f6f8fa;">
-<th style="border: 1px solid #e1e4e8; padding: 12px; text-align: left;">Repository</th>
-<th style="border: 1px solid #e1e4e8; padding: 12px; text-align: left;">Description</th>
-<th style="border: 1px solid #e1e4e8; padding: 12px; text-align: center;">Stars</th>
-<th style="border: 1px solid #e1e4e8; padding: 12px; text-align: center;">Today</th>
-</tr>"""
-
+    rows = []
     for repo in repos[:10]:
         desc = repo.get('description', '') or ''
-        desc_display = desc[:150] + '...' if len(desc) > 150 else desc
-        html_content += f"""<tr>
-<td style="border: 1px solid #e1e4e8; padding: 12px;"><a href="https://github.com{repo['link']}" style="color: #0366d6; text-decoration: none; font-weight: 600;">{repo['title']}</a><br><span style="color: #6a737d; font-size: 12px;">{repo.get('language', '')}</span></td>
-<td style="border: 1px solid #e1e4e8; padding: 12px; color: #586069; font-size: 14px;">{desc_display}</td>
-<td style="border: 1px solid #e1e4e8; padding: 12px; text-align: center; color: #28a745; font-weight: 600;">⭐ {repo['stars']}</td>
-<td style="border: 1px solid #e1e4e8; padding: 12px; text-align: center; color: #f9826c; font-size: 13px;">{repo['todayStars']}</td>
-</tr>"""
-
-    html_content += "</table>"
-    return html_content
+        desc_display = (desc[:100] + '...') if len(desc) > 100 else desc
+        lang = repo.get('language', '') or ''
+        rows.append(f'<tr><td style="border:1px solid #e1e4e8;padding:10px;"><a href="https://github.com{repo["link"]}" style="color:#0366d6;text-decoration:none;font-weight:600;">{repo["title"]}</a><br/><span style="color:#6a737d;font-size:12px;">{lang}</span></td><td style="border:1px solid #e1e4e8;padding:10px;color:#586069;font-size:13px;">{desc_display}</td><td style="border:1px solid #e1e4e8;padding:10px;text-align:center;color:#28a745;font-weight:600;">⭐{repo["stars"]}</td><td style="border:1px solid #e1e4e8;padding:10px;text-align:center;color:#f9826c;font-size:13px;">{repo["todayStars"]}</td></tr>')
+    
+    html = f'<h3 style="color:#24292e;border-bottom:1px solid #e1e4e8;padding-bottom:8px;">{icon} {lang_display} Repos</h3>'
+    html += '<table style="width:100%;border-collapse:collapse;margin-bottom:20px;">'
+    html += '<tr style="background-color:#f6f8fa;"><th style="border:1px solid #e1e4e8;padding:10px;text-align:left;">Repository</th><th style="border:1px solid #e1e4e8;padding:10px;text-align:left;">Description</th><th style="border:1px solid #e1e4e8;padding:10px;text-align:center;">Stars</th><th style="border:1px solid #e1e4e8;padding:10px;text-align:center;">Today</th></tr>'
+    html += ''.join(rows)
+    html += '</table>'
+    return html
 
 def format_huggingface_models(models):
     """Format HuggingFace models as HTML"""
