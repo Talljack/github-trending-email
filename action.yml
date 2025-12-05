@@ -62,7 +62,7 @@ outputs:
 
 runs:
   using: 'node20'
-  main: 'lib/index.js'
+  main: 'lib/index.mjs'
 
 branding:
   icon: 'trending-up'
