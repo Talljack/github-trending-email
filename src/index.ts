@@ -2,6 +2,7 @@ import https from 'https'
 import { getInput, setFailed, setOutput } from '@actions/core'
 import axios from 'axios'
 import { load } from 'cheerio'
+import { chromium } from 'playwright-core'
 
 const axiosInstance = axios.create({
   httpsAgent: new https.Agent({ keepAlive: true }),
@@ -68,6 +69,16 @@ interface AIPaper {
   likes?: number
 }
 
+interface IndieRevenue {
+  rank: number
+  name: string
+  description: string
+  arr: number
+  mrr: number
+  founders: string[]
+  isVerified: boolean
+}
+
 interface RepoOutput {
   [key: string]: GithubRepoType[]
 }
@@ -78,6 +89,7 @@ interface TrendingOutput {
   hackerNewsStories?: HackerNewsStory[]
   devToArticles?: DevToArticle[]
   aiPapers?: AIPaper[]
+  indieRevenue?: IndieRevenue[]
 }
 
 interface UserOptions {
@@ -88,6 +100,7 @@ interface UserOptions {
   enableHackerNews: boolean
   enableDevTo: boolean
   enableAIPapers: boolean
+  enableIndieRevenue: boolean
   itemLimit: number
 }
 
@@ -111,6 +124,7 @@ const getUserInputs = (): UserOptions => {
   const enableHackerNews = getInput('enableHackerNews') !== 'false'
   const enableDevTo = getInput('enableDevTo') !== 'false'
   const enableAIPapers = getInput('enableAIPapers') !== 'false'
+  const enableIndieRevenue = getInput('enableIndieRevenue') !== 'false'
   const itemLimit = Number.parseInt(getInput('itemLimit') || '10', 10)
 
   return {
@@ -121,6 +135,7 @@ const getUserInputs = (): UserOptions => {
     enableHackerNews,
     enableDevTo,
     enableAIPapers,
+    enableIndieRevenue,
     itemLimit,
   }
 }
@@ -310,6 +325,118 @@ async function getAIPapers(limit: number = 10): Promise<AIPaper[]> {
   }
 }
 
+// ============ Indie Revenue (TrustMRR) - Using Playwright ============
+
+async function getIndieRevenue(limit: number = 10): Promise<IndieRevenue[]> {
+  let browser = null
+  try {
+    console.log('Launching browser for TrustMRR...')
+
+    // Try to connect to browserless or launch local browser
+    const browserWSEndpoint = process.env.BROWSERLESS_WS_ENDPOINT
+    if (browserWSEndpoint) {
+      browser = await chromium.connect(browserWSEndpoint)
+    }
+    else {
+      // For GitHub Actions, use the installed chromium
+      browser = await chromium.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      })
+    }
+
+    const page = await browser.newPage()
+
+    // Set a realistic user agent
+    await page.setExtraHTTPHeaders({
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    })
+
+    console.log('Navigating to TrustMRR...')
+    await page.goto('https://trustmrr.com', {
+      waitUntil: 'networkidle',
+      timeout: 60000,
+    })
+
+    // Wait for the content to load
+    await page.waitForTimeout(3000)
+
+    // Extract data from the page
+    const revenues = await page.evaluate((limit: number) => {
+      const results: any[] = []
+
+      // Try to find revenue cards/rows
+      const cards = document.querySelectorAll('[class*="card"], [class*="row"], [class*="item"], tr, article')
+
+      cards.forEach((card, index) => {
+        if (results.length >= limit)
+          return
+
+        const text = card.textContent || ''
+
+        // Look for ARR/MRR patterns
+        const arrMatch = text.match(/\$?([\d,]+(?:\.\d+)?)\s*(?:k|K|M)?\s*(?:ARR|\/yr|\/year)/i)
+        const mrrMatch = text.match(/\$?([\d,]+(?:\.\d+)?)\s*(?:k|K|M)?\s*(?:MRR|\/mo|\/month)/i)
+
+        if (arrMatch || mrrMatch) {
+          // Try to extract name
+          const nameEl = card.querySelector('h1, h2, h3, h4, [class*="name"], [class*="title"]')
+          const name = nameEl?.textContent?.trim() || `Company ${index + 1}`
+
+          // Try to extract description
+          const descEl = card.querySelector('p, [class*="desc"]')
+          const description = descEl?.textContent?.trim() || ''
+
+          let arr = 0
+          let mrr = 0
+
+          if (arrMatch) {
+            let value = Number.parseFloat(arrMatch[1].replace(/,/g, ''))
+            if (text.toLowerCase().includes('k'))
+              value *= 1000
+            if (text.toLowerCase().includes('m'))
+              value *= 1000000
+            arr = value
+          }
+
+          if (mrrMatch) {
+            let value = Number.parseFloat(mrrMatch[1].replace(/,/g, ''))
+            if (text.toLowerCase().includes('k'))
+              value *= 1000
+            if (text.toLowerCase().includes('m'))
+              value *= 1000000
+            mrr = value
+          }
+
+          if (arr > 0 || mrr > 0) {
+            results.push({
+              rank: results.length + 1,
+              name,
+              description: description.slice(0, 200),
+              arr,
+              mrr: mrr || arr / 12,
+              founders: [],
+              isVerified: text.toLowerCase().includes('verified'),
+            })
+          }
+        }
+      })
+
+      return results
+    }, limit)
+
+    await browser.close()
+    console.log(`Found ${revenues.length} indie revenue entries`)
+    return revenues
+  }
+  catch (error) {
+    console.error('Error fetching TrustMRR data:', error)
+    if (browser)
+      await browser.close()
+    return []
+  }
+}
+
 // ============ Main Function ============
 
 async function main(): Promise<TrendingOutput> {
@@ -363,8 +490,14 @@ async function main(): Promise<TrendingOutput> {
     )
   }
 
-  // Wait for all fetches to complete
+  // Wait for all API-based fetches to complete first
   await Promise.all(fetchPromises)
+
+  // Fetch Playwright-based data separately (slower)
+  if (userOptions.enableIndieRevenue) {
+    console.log('Fetching Indie Revenue data (using Playwright)...')
+    result.indieRevenue = await getIndieRevenue(userOptions.itemLimit)
+  }
 
   // Output results
   setOutput(
@@ -403,6 +536,13 @@ async function main(): Promise<TrendingOutput> {
     setOutput(
       'aiPapers',
       Buffer.from(JSON.stringify(result.aiPapers), 'utf-8').toString('base64'),
+    )
+  }
+
+  if (result.indieRevenue) {
+    setOutput(
+      'indieRevenue',
+      Buffer.from(JSON.stringify(result.indieRevenue), 'utf-8').toString('base64'),
     )
   }
 

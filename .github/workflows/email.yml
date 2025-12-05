@@ -27,6 +27,14 @@ jobs:
         id: current-date
         run: echo "CURRENT_DATE=$(TZ='Asia/Shanghai' date +'%Y-%m-%d')" >> $GITHUB_ENV
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
       - name: Get Trending Data
         uses: talljack/github-trending-email@main
         id: trending-repos
@@ -41,6 +49,7 @@ jobs:
           enableHackerNews: 'true'
           enableDevTo: 'true'
           enableAIPapers: 'true'
+          enableIndieRevenue: 'true'
           itemLimit: '10'
 
       - name: Set up Python

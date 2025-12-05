@@ -1,6 +1,6 @@
 name: 'Tech Trending Daily'
 author: 'Talljack'
-description: 'Get GitHub trending repos, AI models, tech news, and developer articles delivered to your email'
+description: 'Get GitHub trending repos, AI models, tech news, indie revenue and developer articles delivered to your email'
 
 inputs:
   token:
@@ -35,6 +35,10 @@ inputs:
     description: 'Enable fetching latest AI research papers'
     required: false
     default: 'true'
+  enableIndieRevenue:
+    description: 'Enable fetching indie developer revenue from TrustMRR (requires Playwright)'
+    required: false
+    default: 'true'
   itemLimit:
     description: 'Number of items to fetch per category'
     required: false
@@ -53,6 +57,9 @@ outputs:
     description: 'Dev.to trending articles (base64 encoded JSON)'
   aiPapers:
     description: 'Latest AI research papers (base64 encoded JSON)'
+  indieRevenue:
+    description: 'Indie developer revenue from TrustMRR (base64 encoded JSON)'
+
 runs:
   using: 'node20'
   main: 'lib/index.js'

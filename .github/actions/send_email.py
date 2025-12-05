@@ -198,6 +198,62 @@ def format_ai_papers(papers):
     html += "</div>"
     return html
 
+def format_indie_revenue(revenues):
+    """Format Indie Revenue data as HTML"""
+    if not revenues:
+        return ""
+    
+    html = """
+    <h2 style="color: #10b981; margin-top: 30px;">💰 Indie Developer Revenue (TrustMRR)</h2>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <tr style="background-color: #ecfdf5;">
+        <th style="border: 1px solid #a7f3d0; padding: 12px; text-align: center;">#</th>
+        <th style="border: 1px solid #a7f3d0; padding: 12px; text-align: left;">Product</th>
+        <th style="border: 1px solid #a7f3d0; padding: 12px; text-align: right;">ARR</th>
+        <th style="border: 1px solid #a7f3d0; padding: 12px; text-align: right;">MRR</th>
+    </tr>
+    """
+    
+    for revenue in revenues[:10]:
+        arr = revenue.get('arr', 0)
+        mrr = revenue.get('mrr', 0)
+        
+        # Format currency
+        arr_str = f"${arr:,.0f}" if arr > 0 else "N/A"
+        mrr_str = f"${mrr:,.0f}/mo" if mrr > 0 else "N/A"
+        
+        verified_badge = "✅" if revenue.get('isVerified') else ""
+        
+        html += f"""
+        <tr>
+            <td style="border: 1px solid #a7f3d0; padding: 12px; text-align: center; color: #6b7280; font-weight: 600;">
+                {revenue.get('rank', '-')}
+            </td>
+            <td style="border: 1px solid #a7f3d0; padding: 12px;">
+                <div style="font-weight: 600; color: #10b981;">
+                    {revenue['name']} {verified_badge}
+                </div>
+                <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">
+                    {revenue.get('description', '')[:80]}{'...' if len(revenue.get('description', '')) > 80 else ''}
+                </div>
+            </td>
+            <td style="border: 1px solid #a7f3d0; padding: 12px; text-align: right; color: #059669; font-weight: 600; font-size: 15px;">
+                {arr_str}
+            </td>
+            <td style="border: 1px solid #a7f3d0; padding: 12px; text-align: right; color: #10b981; font-size: 14px;">
+                {mrr_str}
+            </td>
+        </tr>
+        """
+
+    html += """
+    </table>
+    <div style="font-size: 11px; color: #9ca3af; text-align: right;">
+        Data from <a href="https://trustmrr.com" style="color: #10b981;">TrustMRR</a> - Verified Revenue Rankings
+    </div>
+    """
+    return html
+
 def format_full_trending_email(data):
     """Format the complete trending email with all sections"""
     html = """
@@ -236,9 +292,9 @@ def format_full_trending_email(data):
     if data.get('aiPapers'):
         html += format_ai_papers(data['aiPapers'])
     
-    # Reddit Posts
-    if data.get('redditPosts'):
-        html += format_reddit_posts(data['redditPosts'])
+    # Indie Revenue
+    if data.get('indieRevenue'):
+        html += format_indie_revenue(data['indieRevenue'])
     
     html += """
             <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e1e4e8; color: #6a737d; font-size: 12px;">
