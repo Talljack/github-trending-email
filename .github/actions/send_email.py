@@ -21,7 +21,7 @@ def format_github_repos_table(language: str, repos):
     rows = []
     for repo in repos[:10]:
         desc = repo.get('description', '') or ''
-        desc_display = (desc[:100] + '...') if len(desc) > 100 else desc
+        desc_display = desc[:120] if len(desc) <= 120 else desc[:120] + '…'
         lang = repo.get('language', '') or ''
         rows.append(f'<tr><td style="border:1px solid #e1e4e8;padding:10px;"><a href="https://github.com{repo["link"]}" style="color:#0366d6;text-decoration:none;font-weight:600;">{repo["title"]}</a><br/><span style="color:#6a737d;font-size:12px;">{lang}</span></td><td style="border:1px solid #e1e4e8;padding:10px;color:#586069;font-size:13px;">{desc_display}</td><td style="border:1px solid #e1e4e8;padding:10px;text-align:center;color:#28a745;font-weight:600;">⭐{repo["stars"]}</td><td style="border:1px solid #e1e4e8;padding:10px;text-align:center;color:#f9826c;font-size:13px;">{repo["todayStars"]}</td></tr>')
     
@@ -106,7 +106,7 @@ def format_devto_articles(articles):
         tags = ' '.join([f'<span style="background:#e8e8e8;padding:2px 6px;border-radius:3px;font-size:11px;margin-right:4px;">#{tag}</span>' for tag in article.get('tags', [])[:3]])
         summary = generate_chinese_summary(article['title'], article.get('description', ''))
         summary_html = f'<div style="font-size:12px;color:#3b49df;margin-top:4px;">{summary}</div>' if summary else ''
-        desc_suffix = '...' if len(article.get('description', '') or '') > 150 else ''
+        desc_suffix = '…' if len(article.get('description', '') or '') > 150 else ''
         items.append(f'<div style="padding:12px;border:1px solid #e1e4e8;border-radius:8px;margin-bottom:10px;"><a href="{article["url"]}" style="color:#3b49df;text-decoration:none;font-weight:600;font-size:15px;">{article["title"]}</a><div style="font-size:13px;color:#666;margin:6px 0;">{desc}{desc_suffix}</div>{summary_html}<div style="font-size:12px;color:#999;margin-top:6px;">👤 {article["user"]["name"]} | ❤️ {article.get("publicReactionsCount", 0)} | 💬 {article.get("commentsCount", 0)}</div><div style="margin-top:6px;">{tags}</div></div>')
     
     html = '<h2 style="color:#3b49df;margin-top:30px;">📝 Dev.to Trending Articles</h2>'
@@ -125,7 +125,7 @@ def format_ai_papers(papers):
         authors = ', '.join(authors_list) + (' et al.' if len(paper.get('authors', [])) > 3 else '')
         abstract = (paper.get('abstract', '') or '')[:200]
         if len(paper.get('abstract', '') or '') > 200:
-            abstract += '...'
+            abstract += '…'
         summary = generate_chinese_summary(paper['title'], paper.get('abstract', ''))
         summary_html = f'<div style="font-size:12px;color:#673ab7;margin-top:6px;font-weight:500;">{summary}</div>' if summary else ''
         items.append(f'<div style="padding:12px;border:1px solid #e1e4e8;border-radius:8px;margin-bottom:10px;background:#fafafa;"><a href="{paper["url"]}" style="color:#673ab7;text-decoration:none;font-weight:600;font-size:14px;">{paper["title"]}</a><div style="font-size:12px;color:#666;margin:4px 0;">👤 {authors}</div><div style="font-size:13px;color:#444;line-height:1.4;">{abstract}</div>{summary_html}<div style="font-size:11px;color:#999;margin-top:6px;">❤️ {paper.get("likes", 0)} likes | 📅 {paper.get("publishedDate", "")[:10]}</div></div>')
