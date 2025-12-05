@@ -15,9 +15,12 @@ def format_github_repos_table(language: str, repos):
     if not repos:
         return ""
     
+    # Display name for language
+    lang_display = language.capitalize() if language and language != 'All' else 'All Languages'
+    
     html_content = f"""
     <h3 style="color: #24292e; border-bottom: 1px solid #e1e4e8; padding-bottom: 8px;">
-        📦 {language.capitalize() if language else 'All Languages'} Repos
+        {'🌟' if lang_display == 'All Languages' else '📦'} {lang_display} Repos
     </h3>
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
     <tr style="background-color: #f6f8fa;">
@@ -59,6 +62,7 @@ def format_huggingface_models(models):
     
     html = """
     <h2 style="color: #ff9d00; margin-top: 30px;">🤖 HuggingFace Trending Models</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">热门 AI/ML 模型，可直接用于推理或微调</p>
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
     <tr style="background-color: #fff8e6;">
         <th style="border: 1px solid #ffd700; padding: 12px; text-align: left;">Model</th>
@@ -95,17 +99,111 @@ def format_huggingface_models(models):
     html += "</table>"
     return html
 
+def generate_chinese_summary(title, description=""):
+    """Generate a simple Chinese summary based on keywords"""
+    # Common tech keywords to Chinese mapping
+    keywords = {
+        'ai': 'AI人工智能',
+        'machine learning': '机器学习',
+        'deep learning': '深度学习',
+        'llm': '大语言模型',
+        'gpt': 'GPT模型',
+        'neural': '神经网络',
+        'transformer': 'Transformer架构',
+        'python': 'Python开发',
+        'javascript': 'JavaScript开发',
+        'typescript': 'TypeScript开发',
+        'rust': 'Rust开发',
+        'go': 'Go开发',
+        'web': 'Web开发',
+        'api': 'API接口',
+        'database': '数据库',
+        'cloud': '云计算',
+        'docker': 'Docker容器',
+        'kubernetes': 'K8s容器编排',
+        'security': '安全',
+        'performance': '性能优化',
+        'open source': '开源项目',
+        'framework': '开发框架',
+        'library': '开发库',
+        'tool': '开发工具',
+        'startup': '创业',
+        'saas': 'SaaS服务',
+        'devops': 'DevOps运维',
+        'frontend': '前端开发',
+        'backend': '后端开发',
+        'mobile': '移动开发',
+        'react': 'React前端',
+        'vue': 'Vue前端',
+        'node': 'Node.js',
+        'agent': 'AI Agent智能体',
+        'rag': 'RAG检索增强',
+        'vector': '向量数据库',
+        'embedding': '向量嵌入',
+        'fine-tuning': '模型微调',
+        'inference': '模型推理',
+        'training': '模型训练',
+        'dataset': '数据集',
+        'benchmark': '性能基准',
+        'optimization': '优化',
+        'automation': '自动化',
+        'testing': '测试',
+        'debugging': '调试',
+        'monitoring': '监控',
+        'logging': '日志',
+        'caching': '缓存',
+        'scaling': '扩展',
+        'microservices': '微服务',
+        'serverless': '无服务器',
+        'edge': '边缘计算',
+        'iot': '物联网',
+        'blockchain': '区块链',
+        'crypto': '加密货币',
+        'fintech': '金融科技',
+        'healthtech': '医疗科技',
+        'edtech': '教育科技',
+        'gaming': '游戏开发',
+        'graphics': '图形处理',
+        'audio': '音频处理',
+        'video': '视频处理',
+        'image': '图像处理',
+        'nlp': '自然语言处理',
+        'cv': '计算机视觉',
+        'speech': '语音识别',
+        'recommendation': '推荐系统',
+        'search': '搜索引擎',
+        'analytics': '数据分析',
+        'visualization': '数据可视化',
+    }
+    
+    text = (title + " " + description).lower()
+    found_topics = []
+    
+    for key, chinese in keywords.items():
+        if key in text and chinese not in found_topics:
+            found_topics.append(chinese)
+            if len(found_topics) >= 3:
+                break
+    
+    if found_topics:
+        return "相关: " + "、".join(found_topics)
+    return ""
+
 def format_hackernews_stories(stories):
-    """Format Hacker News stories as HTML"""
+    """Format Hacker News stories as HTML with Chinese summary"""
     if not stories:
         return ""
     
     html = """
     <h2 style="color: #ff6600; margin-top: 30px;">📰 Hacker News Top Stories</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">硅谷技术社区热门讨论，了解最新技术趋势</p>
     <div style="margin-bottom: 20px;">
     """
     
     for i, story in enumerate(stories[:10], 1):
+        chinese_summary = generate_chinese_summary(story['title'])
+        summary_html = f'<div style="font-size: 12px; color: #ff6600; margin-top: 4px;">{chinese_summary}</div>' if chinese_summary else ''
+        
         html += f"""
         <div style="padding: 12px; border-bottom: 1px solid #e1e4e8; background-color: {'#fafafa' if i % 2 == 0 else '#fff'};">
             <div style="font-size: 16px; margin-bottom: 4px;">
@@ -114,7 +212,8 @@ def format_hackernews_stories(stories):
                     {story['title']}
                 </a>
             </div>
-            <div style="font-size: 12px; color: #828282;">
+            {summary_html}
+            <div style="font-size: 12px; color: #828282; margin-top: 4px;">
                 🔺 {story['score']} points | 👤 {story['by']} | 💬 {story.get('descendants', 0)} comments
                 <a href="https://news.ycombinator.com/item?id={story['id']}" style="color: #ff6600; margin-left: 8px;">discuss</a>
             </div>
@@ -125,17 +224,20 @@ def format_hackernews_stories(stories):
     return html
 
 def format_devto_articles(articles):
-    """Format Dev.to articles as HTML"""
+    """Format Dev.to articles as HTML with Chinese summary"""
     if not articles:
         return ""
     
     html = """
     <h2 style="color: #3b49df; margin-top: 30px;">📝 Dev.to Trending Articles</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">开发者社区热门技术文章和教程</p>
     <div style="margin-bottom: 20px;">
     """
     
     for article in articles[:10]:
         tags_html = ' '.join([f'<span style="background-color: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 4px;">#{tag}</span>' for tag in article.get('tags', [])[:3]])
+        chinese_summary = generate_chinese_summary(article['title'], article.get('description', ''))
+        summary_html = f'<div style="font-size: 12px; color: #3b49df; margin-top: 6px;">{chinese_summary}</div>' if chinese_summary else ''
         
         html += f"""
         <div style="padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 12px;">
@@ -147,7 +249,8 @@ def format_devto_articles(articles):
             <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
                 {article.get('description', '')[:150]}...
             </div>
-            <div style="font-size: 12px; color: #999;">
+            {summary_html}
+            <div style="font-size: 12px; color: #999; margin-top: 8px;">
                 👤 {article['user']['name']} | ❤️ {article.get('publicReactionsCount', 0)} | 💬 {article.get('commentsCount', 0)}
             </div>
             <div style="margin-top: 6px;">{tags_html}</div>
@@ -158,12 +261,13 @@ def format_devto_articles(articles):
     return html
 
 def format_ai_papers(papers):
-    """Format AI papers as HTML"""
+    """Format AI papers as HTML with Chinese summary"""
     if not papers:
         return ""
     
     html = """
     <h2 style="color: #673ab7; margin-top: 30px;">📄 Latest AI Research Papers</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">最新 AI 研究论文，来自 HuggingFace Daily Papers</p>
     <div style="margin-bottom: 20px;">
     """
     
@@ -175,6 +279,9 @@ def format_ai_papers(papers):
         abstract = paper.get('abstract', '')[:200]
         if len(paper.get('abstract', '')) > 200:
             abstract += '...'
+        
+        chinese_summary = generate_chinese_summary(paper['title'], paper.get('abstract', ''))
+        summary_html = f'<div style="font-size: 12px; color: #673ab7; margin-top: 8px; font-weight: 500;">{chinese_summary}</div>' if chinese_summary else ''
         
         html += f"""
         <div style="padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 12px; background-color: #fafafa;">
@@ -189,6 +296,7 @@ def format_ai_papers(papers):
             <div style="font-size: 13px; color: #444; line-height: 1.5;">
                 {abstract}
             </div>
+            {summary_html}
             <div style="font-size: 11px; color: #999; margin-top: 8px;">
                 ❤️ {paper.get('likes', 0)} likes | 📅 {paper.get('publishedDate', '')[:10]}
             </div>
@@ -205,6 +313,7 @@ def format_indie_revenue(revenues):
     
     html = """
     <h2 style="color: #10b981; margin-top: 30px;">💰 Indie Developer Revenue (TrustMRR)</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 15px;">独立开发者收入排行，数据来自 TrustMRR 验证</p>
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
     <tr style="background-color: #ecfdf5;">
         <th style="border: 1px solid #a7f3d0; padding: 12px; text-align: center;">#</th>
@@ -270,11 +379,21 @@ def format_full_trending_email(data):
             </h1>
     """
     
-    # GitHub Trending
+    # GitHub Trending - Always first, with All Languages at the top
     if 'githubTrending' in data:
         html += "<h2 style='color: #24292e; margin-top: 20px;'>📦 GitHub Trending Repositories</h2>"
-        for lang, repos in data['githubTrending'].items():
-            html += format_github_repos_table(lang if lang else 'All', repos)
+        
+        github_data = data['githubTrending']
+        
+        # First: All Languages (empty string key or 'all' key)
+        all_repos = github_data.get('', github_data.get('all', github_data.get('All', [])))
+        if all_repos:
+            html += format_github_repos_table('All', all_repos)
+        
+        # Then: Other languages (sorted alphabetically)
+        other_langs = sorted([k for k in github_data.keys() if k and k.lower() not in ['all', '']])
+        for lang in other_langs:
+            html += format_github_repos_table(lang, github_data[lang])
     
     # HuggingFace Models
     if data.get('huggingFaceModels'):
