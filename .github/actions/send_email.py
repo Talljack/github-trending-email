@@ -22,37 +22,37 @@ def format_github_repos(language, repos):
     if not repos:
         return ""
     lang = language.capitalize() if language and language != 'All' else 'All'
-    rows = ''.join([f'<tr><td style="{S["td"]}"><a href="https://github.com{r["link"]}" style="{S["link"]}">{r["title"]}</a></td><td style="{S["td"]}">{(r.get("description","") or "")[:60]}</td><td style="{S["td"]}">⭐{r["stars"]}</td><td style="{S["td"]}">{r["todayStars"]}</td></tr>' for r in repos[:5]])
-    return f'<h3>📦 {lang}</h3><table style="width:100%;border-collapse:collapse;margin-bottom:10px;"><tr><th style="{S["th"]}">Repo</th><th style="{S["th"]}">Desc</th><th style="{S["th"]}">Stars</th><th style="{S["th"]}">Today</th></tr>{rows}</table>'
+    rows = ''.join([f'<tr><td style="{S["td"]}"><a href="https://github.com{r["link"]}" style="{S["link"]}">{r["title"]}</a></td><td style="{S["td"]}">{(r.get("description","") or "")[:80]}</td><td style="{S["td"]}">⭐{r["stars"]}</td><td style="{S["td"]}">{r["todayStars"]}</td></tr>' for r in repos[:10]])
+    return f'<h3>📦 {lang}</h3><table style="width:100%;border-collapse:collapse;margin-bottom:15px;"><tr><th style="{S["th"]}">Repo</th><th style="{S["th"]}">Desc</th><th style="{S["th"]}">Stars</th><th style="{S["th"]}">Today</th></tr>{rows}</table>'
 
 def format_huggingface(models):
     if not models:
         return ""
-    rows = ''.join([f'<tr><td style="{S["td"]}"><a href="{m["link"]}" style="color:#ff9d00;">{m["modelId"]}</a></td><td style="{S["td"]}">{m.get("downloads",0):,}</td><td style="{S["td"]}">{m.get("likes",0)}</td><td style="{S["td"]}">{m.get("pipeline_tag","")}</td></tr>' for m in models[:5]])
-    return f'<h2 style="color:#ff9d00;">🤖 HuggingFace</h2><table style="width:100%;border-collapse:collapse;margin-bottom:10px;"><tr><th style="{S["th"]}">Model</th><th style="{S["th"]}">Downloads</th><th style="{S["th"]}">Likes</th><th style="{S["th"]}">Type</th></tr>{rows}</table>'
+    rows = ''.join([f'<tr><td style="{S["td"]}"><a href="{m["link"]}" style="color:#ff9d00;">{m["modelId"]}</a></td><td style="{S["td"]}">{m.get("downloads",0):,}</td><td style="{S["td"]}">{m.get("likes",0)}</td><td style="{S["td"]}">{m.get("pipeline_tag","")}</td></tr>' for m in models[:10]])
+    return f'<h2 style="color:#ff9d00;">🤖 HuggingFace Models</h2><table style="width:100%;border-collapse:collapse;margin-bottom:15px;"><tr><th style="{S["th"]}">Model</th><th style="{S["th"]}">Downloads</th><th style="{S["th"]}">Likes</th><th style="{S["th"]}">Type</th></tr>{rows}</table>'
 
 def format_hackernews(stories):
     if not stories:
         return ""
-    items = ''.join([f'<div style="padding:6px 0;border-bottom:1px solid #eee;"><a href="{s["link"]}" style="color:#ff6600;">{s["title"]}</a> <span style="{S["sub"]}">▲{s["score"]}</span></div>' for s in stories[:5]])
+    items = ''.join([f'<div style="padding:8px;border-bottom:1px solid #eee;"><a href="{s["link"]}" style="color:#ff6600;">{s["title"]}</a><br/><span style="{S["sub"]}">▲{s["score"]} | {s["by"]} | {s.get("descendants",0)} comments</span></div>' for s in stories[:10]])
     return f'<h2 style="color:#ff6600;">📰 Hacker News</h2>{items}'
 
 def format_devto(articles):
     if not articles:
         return ""
-    items = ''.join([f'<div style="padding:6px 0;border-bottom:1px solid #eee;"><a href="{a["url"]}" style="color:#3b49df;">{a["title"]}</a> <span style="{S["sub"]}">❤️{a.get("publicReactionsCount",0)}</span></div>' for a in articles[:5]])
+    items = ''.join([f'<div style="padding:8px;border-bottom:1px solid #eee;"><a href="{a["url"]}" style="color:#3b49df;">{a["title"]}</a><br/><span style="{S["sub"]}">{a["user"]["name"]} | ❤️{a.get("publicReactionsCount",0)}</span></div>' for a in articles[:10]])
     return f'<h2 style="color:#3b49df;">📝 Dev.to</h2>{items}'
 
 def format_papers(papers):
     if not papers:
         return ""
-    items = ''.join([f'<div style="padding:6px 0;border-bottom:1px solid #eee;"><a href="{p["url"]}" style="color:#673ab7;">{p["title"][:60]}</a> <span style="{S["sub"]}">❤️{p.get("likes",0)}</span></div>' for p in papers[:5]])
+    items = ''.join([f'<div style="padding:8px;border-bottom:1px solid #eee;"><a href="{p["url"]}" style="color:#673ab7;">{p["title"]}</a><br/><span style="{S["sub"]}">{", ".join(p.get("authors",[])[:2])} | ❤️{p.get("likes",0)}</span></div>' for p in papers[:10]])
     return f'<h2 style="color:#673ab7;">📄 AI Papers</h2>{items}'
 
 def format_indie(revenues):
     if not revenues:
         return ""
-    rows = ''.join([f'<tr><td style="{S["td"]}">{r.get("rank","-")}</td><td style="{S["td"]}"><a href="{r.get("url","#")}" style="color:#10b981;">{r["name"]}</a></td><td style="{S["td"]}">${r.get("arr",0):,.0f}</td><td style="{S["td"]}">${r.get("mrr",0):,.0f}/mo</td></tr>' for r in revenues[:5]])
+    rows = ''.join([f'<tr><td style="{S["td"]}">{r.get("rank","-")}</td><td style="{S["td"]}">{r["name"]}</td><td style="{S["td"]}">${r.get("arr",0):,.0f}</td><td style="{S["td"]}">${r.get("mrr",0):,.0f}/mo</td></tr>' for r in revenues[:10]])
     return f'<h2 style="color:#10b981;">💰 Indie Revenue</h2><table style="width:100%;border-collapse:collapse;"><tr><th style="{S["th"]}">#</th><th style="{S["th"]}">Product</th><th style="{S["th"]}">ARR</th><th style="{S["th"]}">MRR</th></tr>{rows}</table>'
 
 def format_email(data):
