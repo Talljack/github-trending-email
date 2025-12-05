@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "lib": ["ESNext"],
+    "lib": ["ESNext", "DOM"],
     "baseUrl": "./src",
     "module": "esnext",
     "moduleResolution": "node",
@@ -10,7 +10,8 @@
     "importHelpers": true,
     "outDir": "lib",
     "pretty": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "lib"]

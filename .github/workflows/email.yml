@@ -1,7 +1,8 @@
-name: Send Github Trending Repos via Gmail
+name: Send Tech Trending Daily via Gmail
 
 on:
   schedule:
+    # Every day at UTC 11:00 (7:00 PM in UTC+8)
     - cron: '0 11 * * *'
 
   push:
@@ -26,24 +27,48 @@ jobs:
         id: current-date
         run: echo "CURRENT_DATE=$(TZ='Asia/Shanghai' date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Get Trending repos
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Get Trending Data
         uses: talljack/github-trending-email@main
         id: trending-repos
         env:
-            token: ${{secrets.GITHUB_TOKEN}} # 使用存储在仓库 Secrets 中的 GitHub 令牌
+          token: ${{ secrets.GITHUB_TOKEN }}
         with:
-          languages: '["", "typescript", "python", "go", "swift", "rust", "vue"]'
+          # GitHub Trending settings
+          languages: '["", "typescript", "python", "go"]'
+          dateRange: 'daily'
+          # Extended features - set to 'false' to disable
+          enableHuggingFace: 'true'
+          enableHackerNews: 'true'
+          enableDevTo: 'true'
+          enableAIPapers: 'true'
+          enableIndieRevenue: 'true'
+          itemLimit: '10'
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.x'  # Specify the Python version
+          python-version: '3.x'
+
       - name: Install dependencies
         run: pip install yagmail
 
-      - name: Send email
+      # Send full trending email (new format)
+      - name: Send trending email
         run: |
-          python ./.github/actions/send_email.py "${{ secrets.GMAIL_USERNAME }}" "${{ secrets.GMAIL_PASSWORD }}" "yugang.cao12@gmail.com" "Github Trending Repos - $CURRENT_DATE" ${{ steps.trending-repos.outputs.githubTrendingRepos }}
+          python ./.github/actions/send_email.py \
+            "${{ secrets.GMAIL_USERNAME }}" \
+            "${{ secrets.GMAIL_PASSWORD }}" \
+            "yugang.cao12@gmail.com" \
+            "🔥 Tech Trending Daily - $CURRENT_DATE" \
+            ${{ steps.trending-repos.outputs.trendingData }}
 
       - name: Write github trending repos
         run: |
