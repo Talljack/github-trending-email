@@ -1,6 +1,6 @@
 name: 'Tech Trending Daily'
 author: 'Talljack'
-description: 'Get GitHub trending repos, AI models, tech news, and indie hacker insights delivered to your email'
+description: 'Get GitHub trending repos, AI models, tech news, and developer articles delivered to your email'
 
 inputs:
   token:
@@ -27,16 +27,12 @@ inputs:
     description: 'Enable fetching top Hacker News stories'
     required: false
     default: 'true'
-  enableProductHunt:
-    description: 'Enable fetching Product Hunt products'
+  enableDevTo:
+    description: 'Enable fetching Dev.to trending articles'
     required: false
     default: 'true'
   enableAIPapers:
     description: 'Enable fetching latest AI research papers'
-    required: false
-    default: 'true'
-  enableIndieHackers:
-    description: 'Enable fetching Indie Hackers revenue reports'
     required: false
     default: 'true'
   itemLimit:
@@ -53,13 +49,10 @@ outputs:
     description: 'HuggingFace trending models (base64 encoded JSON)'
   hackerNewsStories:
     description: 'Hacker News top stories (base64 encoded JSON)'
-  productHuntProducts:
-    description: 'Product Hunt products (base64 encoded JSON)'
+  devToArticles:
+    description: 'Dev.to trending articles (base64 encoded JSON)'
   aiPapers:
     description: 'Latest AI research papers (base64 encoded JSON)'
-  indieHackerReports:
-    description: 'Indie Hackers revenue reports (base64 encoded JSON)'
-
 runs:
   using: 'node20'
   main: 'lib/index.js'

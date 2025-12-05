@@ -52,6 +52,21 @@ interface HackerNewsStory {
   link: string
 }
 
+interface DevToArticle {
+  id: number
+  title: string
+  description: string
+  url: string
+  commentsCount: number
+  publicReactionsCount: number
+  publishedAt: string
+  user: {
+    name: string
+    username: string
+  }
+  tags: string[]
+}
+
 interface AIPaper {
   title: string
   authors: string[]
@@ -61,11 +76,23 @@ interface AIPaper {
   likes?: number
 }
 
+interface RedditPost {
+  title: string
+  url: string
+  score: number
+  numComments: number
+  author: string
+  subreddit: string
+  permalink: string
+}
+
 interface TrendingOutput {
   githubTrending: { [key: string]: GithubRepoType[] }
   huggingFaceModels?: HuggingFaceModel[]
   hackerNewsStories?: HackerNewsStory[]
+  devToArticles?: DevToArticle[]
   aiPapers?: AIPaper[]
+  redditPosts?: RedditPost[]
 }
 
 // ============ Fetch Functions ============
@@ -168,6 +195,37 @@ async function getHackerNewsStories(limit: number = 10): Promise<HackerNewsStory
   }
 }
 
+async function getDevToArticles(limit: number = 10): Promise<DevToArticle[]> {
+  try {
+    console.log('  Fetching Dev.to articles...')
+    const { data } = await axiosInstance.get(
+      `https://dev.to/api/articles?per_page=${limit}&top=1`,
+    )
+
+    const articles = data.map((article: any) => ({
+      id: article.id,
+      title: article.title,
+      description: article.description || '',
+      url: article.url,
+      commentsCount: article.comments_count || 0,
+      publicReactionsCount: article.public_reactions_count || 0,
+      publishedAt: article.published_at,
+      user: {
+        name: article.user?.name || '',
+        username: article.user?.username || '',
+      },
+      tags: article.tag_list || [],
+    }))
+
+    console.log(`    Found ${articles.length} articles`)
+    return articles
+  }
+  catch (error) {
+    console.error('Error fetching Dev.to articles:', error)
+    return []
+  }
+}
+
 async function getAIPapers(limit: number = 10): Promise<AIPaper[]> {
   try {
     console.log('  Fetching AI papers...')
@@ -195,11 +253,60 @@ async function getAIPapers(limit: number = 10): Promise<AIPaper[]> {
   }
 }
 
+async function getRedditPosts(limit: number = 10): Promise<RedditPost[]> {
+  try {
+    console.log('  Fetching Reddit posts...')
+    const subreddits = ['programming', 'webdev', 'MachineLearning']
+    const allPosts: RedditPost[] = []
+
+    for (const subreddit of subreddits) {
+      try {
+        const { data } = await axiosInstance.get(
+          `https://www.reddit.com/r/${subreddit}/hot.json?limit=${Math.ceil(limit / subreddits.length)}`,
+          {
+            headers: {
+              'User-Agent': 'TechTrendingDaily/1.0',
+            },
+          },
+        )
+
+        const posts = data.data.children.map((child: any) => ({
+          title: child.data.title,
+          url: child.data.url,
+          score: child.data.score,
+          numComments: child.data.num_comments,
+          author: child.data.author,
+          subreddit: child.data.subreddit,
+          permalink: `https://reddit.com${child.data.permalink}`,
+        }))
+
+        allPosts.push(...posts)
+        console.log(`    Found ${posts.length} posts from r/${subreddit}`)
+      }
+      catch (e) {
+        console.error(`    Error fetching r/${subreddit}:`, e)
+      }
+    }
+
+    // Sort by score and return top items
+    const sortedPosts = allPosts
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+
+    console.log(`    Total: ${sortedPosts.length} posts`)
+    return sortedPosts
+  }
+  catch (error) {
+    console.error('Error fetching Reddit posts:', error)
+    return []
+  }
+}
+
 // ============ Main Test Function ============
 
 async function runTest() {
   console.log('\n🚀 Starting Tech Trending Daily Local Test\n')
-  console.log('=' .repeat(50))
+  console.log('='.repeat(50))
 
   const result: TrendingOutput = {
     githubTrending: {},
@@ -221,12 +328,20 @@ async function runTest() {
   console.log('\n📰 Testing Hacker News...')
   result.hackerNewsStories = await getHackerNewsStories(5)
 
+  // Test Dev.to
+  console.log('\n📝 Testing Dev.to...')
+  result.devToArticles = await getDevToArticles(5)
+
   // Test AI Papers
   console.log('\n📄 Testing AI Papers...')
   result.aiPapers = await getAIPapers(5)
 
-  console.log('\n' + '=' .repeat(50))
-  console.log('✅ All data fetched successfully!\n')
+  // Test Reddit
+  console.log('\n🔥 Testing Reddit...')
+  result.redditPosts = await getRedditPosts(5)
+
+  console.log('\n' + '='.repeat(50))
+  console.log('✅ All data fetched!\n')
 
   // Save to file
   const outputDir = path.join(__dirname, '../test-output')
@@ -246,10 +361,12 @@ async function runTest() {
 
   // Print summary
   console.log('\n📊 Summary:')
-  console.log(`  - GitHub repos: ${Object.values(result.githubTrending).flat().length}`)
-  console.log(`  - HuggingFace models: ${result.huggingFaceModels?.length || 0}`)
-  console.log(`  - Hacker News stories: ${result.hackerNewsStories?.length || 0}`)
-  console.log(`  - AI papers: ${result.aiPapers?.length || 0}`)
+  console.log(`  ✅ GitHub repos: ${Object.values(result.githubTrending).flat().length}`)
+  console.log(`  ✅ HuggingFace models: ${result.huggingFaceModels?.length || 0}`)
+  console.log(`  ✅ Hacker News stories: ${result.hackerNewsStories?.length || 0}`)
+  console.log(`  ✅ Dev.to articles: ${result.devToArticles?.length || 0}`)
+  console.log(`  ✅ AI papers: ${result.aiPapers?.length || 0}`)
+  console.log(`  ✅ Reddit posts: ${result.redditPosts?.length || 0}`)
 
   console.log('\n📧 To send test email, run:')
   console.log(`  python .github/actions/send_email.py <gmail_username> <gmail_app_password> <recipient_email> "Test Email" $(cat ${base64Path})`)
@@ -259,4 +376,3 @@ async function runTest() {
 
 // Run the test
 runTest().catch(console.error)
-

@@ -39,9 +39,8 @@ jobs:
           # Extended features - set to 'false' to disable
           enableHuggingFace: 'true'
           enableHackerNews: 'true'
-          enableProductHunt: 'true'
+          enableDevTo: 'true'
           enableAIPapers: 'true'
-          enableIndieHackers: 'true'
           itemLimit: '10'
 
       - name: Set up Python

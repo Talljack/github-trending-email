@@ -91,7 +91,7 @@ def format_huggingface_models(models):
             </td>
         </tr>
         """
-    
+
     html += "</table>"
     return html
 
@@ -118,6 +118,39 @@ def format_hackernews_stories(stories):
                 🔺 {story['score']} points | 👤 {story['by']} | 💬 {story.get('descendants', 0)} comments
                 <a href="https://news.ycombinator.com/item?id={story['id']}" style="color: #ff6600; margin-left: 8px;">discuss</a>
             </div>
+        </div>
+        """
+    
+    html += "</div>"
+    return html
+
+def format_devto_articles(articles):
+    """Format Dev.to articles as HTML"""
+    if not articles:
+        return ""
+    
+    html = """
+    <h2 style="color: #3b49df; margin-top: 30px;">📝 Dev.to Trending Articles</h2>
+    <div style="margin-bottom: 20px;">
+    """
+    
+    for article in articles[:10]:
+        tags_html = ' '.join([f'<span style="background-color: #e8e8e8; padding: 2px 6px; border-radius: 3px; font-size: 11px; margin-right: 4px;">#{tag}</span>' for tag in article.get('tags', [])[:3]])
+        
+        html += f"""
+        <div style="padding: 15px; border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 12px;">
+            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">
+                <a href="{article['url']}" style="color: #3b49df; text-decoration: none;">
+                    {article['title']}
+                </a>
+            </div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                {article.get('description', '')[:150]}...
+            </div>
+            <div style="font-size: 12px; color: #999;">
+                👤 {article['user']['name']} | ❤️ {article.get('publicReactionsCount', 0)} | 💬 {article.get('commentsCount', 0)}
+            </div>
+            <div style="margin-top: 6px;">{tags_html}</div>
         </div>
         """
     
@@ -165,76 +198,6 @@ def format_ai_papers(papers):
     html += "</div>"
     return html
 
-def format_producthunt_products(products):
-    """Format Product Hunt products as HTML"""
-    if not products:
-        return ""
-    
-    html = """
-    <h2 style="color: #da552f; margin-top: 30px;">🚀 Product Hunt Today</h2>
-    <div style="margin-bottom: 20px;">
-    """
-    
-    for product in products[:10]:
-        html += f"""
-        <div style="padding: 12px; border: 1px solid #e1e4e8; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center;">
-            <div style="flex: 1;">
-                <div style="font-size: 15px; font-weight: 600;">
-                    <a href="{product['url']}" style="color: #da552f; text-decoration: none;">
-                        {product['name']}
-                    </a>
-                </div>
-                <div style="font-size: 13px; color: #666; margin-top: 4px;">
-                    {product.get('tagline', '')}
-                </div>
-            </div>
-            <div style="text-align: center; padding: 8px 16px; background-color: #da552f; color: white; border-radius: 4px; font-weight: 600;">
-                ▲ {product.get('votesCount', 0)}
-            </div>
-        </div>
-        """
-    
-    html += "</div>"
-    return html
-
-def format_indie_hackers(reports):
-    """Format Indie Hackers revenue reports as HTML"""
-    if not reports:
-        return ""
-    
-    html = """
-    <h2 style="color: #1a73e8; margin-top: 30px;">💰 Indie Hackers Revenue Reports</h2>
-    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-    <tr style="background-color: #e8f0fe;">
-        <th style="border: 1px solid #c2d7f5; padding: 12px; text-align: left;">Product</th>
-        <th style="border: 1px solid #c2d7f5; padding: 12px; text-align: right;">MRR</th>
-        <th style="border: 1px solid #c2d7f5; padding: 12px; text-align: left;">Description</th>
-    </tr>
-    """
-    
-    for report in reports[:10]:
-        mrr = report.get('mrr', 0)
-        mrr_str = f"${mrr:,.0f}/mo" if mrr > 0 else "N/A"
-        
-        html += f"""
-        <tr>
-            <td style="border: 1px solid #c2d7f5; padding: 12px;">
-                <a href="{report['url']}" style="color: #1a73e8; text-decoration: none; font-weight: 600;">
-                    {report['productName']}
-                </a>
-            </td>
-            <td style="border: 1px solid #c2d7f5; padding: 12px; text-align: right; color: #28a745; font-weight: 600; font-size: 15px;">
-                {mrr_str}
-            </td>
-            <td style="border: 1px solid #c2d7f5; padding: 12px; color: #666; font-size: 13px;">
-                {report.get('description', '')[:100]}
-            </td>
-        </tr>
-        """
-    
-    html += "</table>"
-    return html
-
 def format_full_trending_email(data):
     """Format the complete trending email with all sections"""
     html = """
@@ -265,17 +228,17 @@ def format_full_trending_email(data):
     if data.get('hackerNewsStories'):
         html += format_hackernews_stories(data['hackerNewsStories'])
     
+    # Dev.to Articles
+    if data.get('devToArticles'):
+        html += format_devto_articles(data['devToArticles'])
+    
     # AI Papers
     if data.get('aiPapers'):
         html += format_ai_papers(data['aiPapers'])
     
-    # Product Hunt
-    if data.get('productHuntProducts'):
-        html += format_producthunt_products(data['productHuntProducts'])
-    
-    # Indie Hackers
-    if data.get('indieHackerReports'):
-        html += format_indie_hackers(data['indieHackerReports'])
+    # Reddit Posts
+    if data.get('redditPosts'):
+        html += format_reddit_posts(data['redditPosts'])
     
     html += """
             <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e1e4e8; color: #6a737d; font-size: 12px;">

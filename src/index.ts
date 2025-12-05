@@ -44,14 +44,19 @@ interface HackerNewsStory {
   link: string
 }
 
-interface ProductHuntProduct {
-  name: string
-  tagline: string
+interface DevToArticle {
+  id: number
+  title: string
+  description: string
   url: string
-  votesCount: number
   commentsCount: number
-  thumbnail?: string
-  topics: string[]
+  publicReactionsCount: number
+  publishedAt: string
+  user: {
+    name: string
+    username: string
+  }
+  tags: string[]
 }
 
 interface AIPaper {
@@ -63,14 +68,6 @@ interface AIPaper {
   likes?: number
 }
 
-interface IndieHackerReport {
-  productName: string
-  mrr: number
-  url: string
-  description?: string
-  category?: string
-}
-
 interface RepoOutput {
   [key: string]: GithubRepoType[]
 }
@@ -79,9 +76,8 @@ interface TrendingOutput {
   githubTrending: RepoOutput
   huggingFaceModels?: HuggingFaceModel[]
   hackerNewsStories?: HackerNewsStory[]
-  productHuntProducts?: ProductHuntProduct[]
+  devToArticles?: DevToArticle[]
   aiPapers?: AIPaper[]
-  indieHackerReports?: IndieHackerReport[]
 }
 
 interface UserOptions {
@@ -90,9 +86,8 @@ interface UserOptions {
   dateRange: string
   enableHuggingFace: boolean
   enableHackerNews: boolean
-  enableProductHunt: boolean
+  enableDevTo: boolean
   enableAIPapers: boolean
-  enableIndieHackers: boolean
   itemLimit: number
 }
 
@@ -114,9 +109,8 @@ const getUserInputs = (): UserOptions => {
   // New options for extended features
   const enableHuggingFace = getInput('enableHuggingFace') !== 'false'
   const enableHackerNews = getInput('enableHackerNews') !== 'false'
-  const enableProductHunt = getInput('enableProductHunt') !== 'false'
+  const enableDevTo = getInput('enableDevTo') !== 'false'
   const enableAIPapers = getInput('enableAIPapers') !== 'false'
-  const enableIndieHackers = getInput('enableIndieHackers') !== 'false'
   const itemLimit = Number.parseInt(getInput('itemLimit') || '10', 10)
 
   return {
@@ -125,9 +119,8 @@ const getUserInputs = (): UserOptions => {
     dateRange,
     enableHuggingFace,
     enableHackerNews,
-    enableProductHunt,
+    enableDevTo,
     enableAIPapers,
-    enableIndieHackers,
     itemLimit,
   }
 }
@@ -261,69 +254,32 @@ async function getHackerNewsStories(limit: number = 10): Promise<HackerNewsStory
   }
 }
 
-// ============ Product Hunt Products ============
+// ============ Dev.to Articles ============
 
-async function getProductHuntProducts(limit: number = 10): Promise<ProductHuntProduct[]> {
+async function getDevToArticles(limit: number = 10): Promise<DevToArticle[]> {
   try {
-    // Product Hunt doesn't have a public API, scrape the homepage
-    const { data } = await axiosInstance.get('https://www.producthunt.com/', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    // Dev.to has a public API
+    const { data } = await axiosInstance.get(
+      `https://dev.to/api/articles?per_page=${limit}&top=1`,
+    )
+
+    return data.map((article: any) => ({
+      id: article.id,
+      title: article.title,
+      description: article.description || '',
+      url: article.url,
+      commentsCount: article.comments_count || 0,
+      publicReactionsCount: article.public_reactions_count || 0,
+      publishedAt: article.published_at,
+      user: {
+        name: article.user?.name || '',
+        username: article.user?.username || '',
       },
-    })
-
-    const $ = load(data)
-    const products: ProductHuntProduct[] = []
-
-    // Try to extract products from the page
-    $('[data-test="post-item"]').each((_index, element) => {
-      if (products.length >= limit)
-        return false
-
-      const name = $(element).find('[data-test="post-name"]').text().trim()
-      const tagline = $(element).find('[data-test="post-tagline"]').text().trim()
-      const href = $(element).find('a').first().attr('href')
-
-      if (name) {
-        products.push({
-          name,
-          tagline,
-          url: href ? `https://www.producthunt.com${href}` : '',
-          votesCount: 0,
-          commentsCount: 0,
-          topics: [],
-        })
-      }
-    })
-
-    // Fallback: try alternative selectors
-    if (products.length === 0) {
-      $('article').each((_index, element) => {
-        if (products.length >= limit)
-          return false
-
-        const name = $(element).find('h3').first().text().trim()
-        const tagline = $(element).find('p').first().text().trim()
-        const href = $(element).find('a').first().attr('href')
-
-        if (name && name.length > 0) {
-          products.push({
-            name,
-            tagline,
-            url: href?.startsWith('http') ? href : `https://www.producthunt.com${href || ''}`,
-            votesCount: 0,
-            commentsCount: 0,
-            topics: [],
-          })
-        }
-      })
-    }
-
-    return products
+      tags: article.tag_list || [],
+    }))
   }
   catch (error) {
-    console.error('Error fetching Product Hunt products:', error)
+    console.error('Error fetching Dev.to articles:', error)
     return []
   }
 }
@@ -350,52 +306,6 @@ async function getAIPapers(limit: number = 10): Promise<AIPaper[]> {
   }
   catch (error) {
     console.error('Error fetching AI papers:', error)
-    return []
-  }
-}
-
-// ============ Indie Hackers Revenue Reports ============
-
-async function getIndieHackerReports(limit: number = 10): Promise<IndieHackerReport[]> {
-  try {
-    // Indie Hackers doesn't have a public API, try to scrape
-    const { data } = await axiosInstance.get('https://www.indiehackers.com/products?sorting=highest-revenue', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      },
-    })
-
-    const $ = load(data)
-    const reports: IndieHackerReport[] = []
-
-    // Try to extract product cards
-    $('.product-card, [class*="product"]').each((_index, element) => {
-      if (reports.length >= limit)
-        return false
-
-      const productName = $(element).find('h2, h3, [class*="name"]').first().text().trim()
-      const mrrText = $(element).find('[class*="revenue"], [class*="mrr"]').text().trim()
-      const href = $(element).find('a').first().attr('href')
-
-      // Parse MRR from text like "$10,000/mo" or "$10k MRR"
-      const mrrMatch = mrrText.match(/\$?([\d,]+(?:\.\d+)?)\s*k?/i)
-      const mrr = mrrMatch ? Number.parseFloat(mrrMatch[1].replace(/,/g, '')) * (mrrText.toLowerCase().includes('k') ? 1000 : 1) : 0
-
-      if (productName) {
-        reports.push({
-          productName,
-          mrr,
-          url: href ? `https://www.indiehackers.com${href}` : '',
-          description: $(element).find('p, [class*="description"]').first().text().trim(),
-        })
-      }
-    })
-
-    return reports
-  }
-  catch (error) {
-    console.error('Error fetching Indie Hackers reports:', error)
     return []
   }
 }
@@ -435,11 +345,11 @@ async function main(): Promise<TrendingOutput> {
     )
   }
 
-  if (userOptions.enableProductHunt) {
-    console.log('Fetching Product Hunt products...')
+  if (userOptions.enableDevTo) {
+    console.log('Fetching Dev.to articles...')
     fetchPromises.push(
-      getProductHuntProducts(userOptions.itemLimit).then((products) => {
-        result.productHuntProducts = products
+      getDevToArticles(userOptions.itemLimit).then((articles) => {
+        result.devToArticles = articles
       }),
     )
   }
@@ -449,15 +359,6 @@ async function main(): Promise<TrendingOutput> {
     fetchPromises.push(
       getAIPapers(userOptions.itemLimit).then((papers) => {
         result.aiPapers = papers
-      }),
-    )
-  }
-
-  if (userOptions.enableIndieHackers) {
-    console.log('Fetching Indie Hackers reports...')
-    fetchPromises.push(
-      getIndieHackerReports(userOptions.itemLimit).then((reports) => {
-        result.indieHackerReports = reports
       }),
     )
   }
@@ -491,10 +392,10 @@ async function main(): Promise<TrendingOutput> {
     )
   }
 
-  if (result.productHuntProducts) {
+  if (result.devToArticles) {
     setOutput(
-      'productHuntProducts',
-      Buffer.from(JSON.stringify(result.productHuntProducts), 'utf-8').toString('base64'),
+      'devToArticles',
+      Buffer.from(JSON.stringify(result.devToArticles), 'utf-8').toString('base64'),
     )
   }
 
@@ -502,13 +403,6 @@ async function main(): Promise<TrendingOutput> {
     setOutput(
       'aiPapers',
       Buffer.from(JSON.stringify(result.aiPapers), 'utf-8').toString('base64'),
-    )
-  }
-
-  if (result.indieHackerReports) {
-    setOutput(
-      'indieHackerReports',
-      Buffer.from(JSON.stringify(result.indieHackerReports), 'utf-8').toString('base64'),
     )
   }
 
