@@ -33,7 +33,7 @@
     "@types/node": "^24.0.14",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^9.31.0",
-    "rimraf": "^6.0.1",
+    "rimraf": "^6.1.2",
     "simple-git-hooks": "^2.13.0",
     "talljack-eslint-config": "^0.2.6",
     "ts-node": "^10.9.2",
