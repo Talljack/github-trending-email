@@ -31,6 +31,7 @@ echo ""
 
 # Check if test data exists
 DATA_FILE="$PROJECT_DIR/test-output/trending-data-base64.txt"
+REMOTE_JOBS_REPORT="$PROJECT_DIR/remote-jobs/daily_remote_jobs_$(TZ='Asia/Shanghai' date +'%Y-%m-%d').md"
 
 if [ ! -f "$DATA_FILE" ]; then
     echo "📊 No test data found. Fetching fresh data..."
@@ -50,6 +51,7 @@ echo "📧 Sending test email..."
 echo "   From: $GMAIL_USERNAME"
 echo "   To: $RECIPIENT"
 echo "   Subject: $SUBJECT"
+echo "   Remote jobs report: $REMOTE_JOBS_REPORT"
 echo ""
 
 # Install yagmail if needed
@@ -62,8 +64,9 @@ python "$PROJECT_DIR/.github/actions/send_email.py" \
     "$GMAIL_PASSWORD" \
     "$RECIPIENT" \
     "$SUBJECT" \
-    "$BASE64_DATA"
+    "$BASE64_DATA" \
+    "true" \
+    "$REMOTE_JOBS_REPORT"
 
 echo ""
 echo "✅ Done! Check your inbox at $RECIPIENT"
-

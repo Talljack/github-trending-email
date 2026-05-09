@@ -1,10 +1,15 @@
 # send_email.py
-import yagmail
 import base64
-import sys
+import html
 import json
+import os
+from pathlib import Path
 import random
+import re
 import string
+import sys
+
+import yagmail
 
 def send_email(username, password, recipient, subject, body):
     print("Sending email...")
@@ -16,7 +21,125 @@ def uid():
     """Generate unique id to prevent Gmail pattern detection"""
     return ''.join(random.choices(string.ascii_lowercase, k=4))
 
-def format_email(data):
+def parse_bool(value):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
+
+def load_remote_jobs_report(report_path):
+    if not report_path:
+        return {
+            'status': 'missing',
+            'message': '未提供远程岗位报告路径。',
+            'path': '',
+        }
+
+    path = Path(report_path)
+    if not path.exists():
+        return {
+            'status': 'missing',
+            'message': f'未找到远程岗位报告：{path}',
+            'path': str(path),
+        }
+
+    content = path.read_text(encoding='utf-8').strip()
+    title = path.stem.replace('_', ' ')
+    for line in content.splitlines():
+        if line.startswith('主题：'):
+            title = line.replace('主题：', '', 1).strip()
+            break
+
+    return {
+        'status': 'ready',
+        'title': title,
+        'path': str(path),
+        'content': content,
+    }
+
+def render_remote_jobs_report(report):
+    lines = report.get('content', '').splitlines()
+    parts = [
+        f'<div style="background:#2f2f2f;padding:24px;border-radius:10px;margin:24px 0;color:#f3f4f6;" id="remote-{uid()}">',
+        f'<h2 style="color:#f9fafb;margin:0 0 8px 0;font-size:28px;line-height:1.3;">{html.escape(report.get("title", "每日远程岗位推荐"))}</h2>',
+        '<p style="color:#d1d5db;margin:0 0 20px 0;font-size:14px;line-height:1.7;">以下内容来自每日远程开发岗位搜索 automation 同步的当日报告。</p>',
+    ]
+
+    in_list = False
+
+    def close_list():
+        nonlocal in_list
+        if in_list:
+            parts.append('</ul>')
+            in_list = False
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or line.startswith('主题：'):
+            close_list()
+            continue
+
+        if line.startswith('## '):
+            close_list()
+            parts.append(
+                f'<h3 style="color:#f9fafb;margin:28px 0 18px 0;font-size:24px;line-height:1.35;">'
+                f'{html.escape(line[3:])}'
+                '</h3>',
+            )
+            continue
+
+        if re.match(r'^\d+\.\s+', line):
+            close_list()
+            parts.append(
+                f'<p style="margin:0 0 12px 0;color:#f3f4f6;font-size:22px;font-weight:800;line-height:1.55;">'
+                f'{html.escape(line)}'
+                '</p>',
+            )
+            continue
+
+        if line.startswith('- '):
+            if not in_list:
+                parts.append(
+                    '<ul style="margin:0 0 18px 28px;padding:0;color:#d1d5db;line-height:1.8;font-size:18px;">',
+                )
+                in_list = True
+            bullet_text = html.escape(line[2:].strip())
+            bullet_text = re.sub(
+                r'(https?://[^\s<]+)',
+                r'<a href="\1" style="color:#60a5fa;text-decoration:underline;">\1</a>',
+                bullet_text,
+            )
+            parts.append(f'<li style="margin:0 0 10px 0;">{bullet_text}</li>')
+            continue
+
+        close_list()
+        parts.append(
+            f'<p style="margin:10px 0 16px 0;color:#d1d5db;font-size:18px;line-height:1.8;">'
+            f'{html.escape(line)}'
+            '</p>',
+        )
+
+    close_list()
+    parts.append('</div>')
+    return ''.join(parts)
+
+def render_remote_jobs_warning(report):
+    message = html.escape(report.get('message', '远程岗位报告暂不可用。'))
+    path = report.get('path', '')
+    path_hint = ''
+    if path:
+        path_hint = f'<p style="margin:8px 0 0 0;color:#7f1d1d;font-size:12px;">预期路径：{html.escape(path)}</p>'
+
+    return (
+        f'<div style="background:#fef2f2;padding:18px;border-radius:8px;margin:20px 0;border-left:5px solid #dc2626;" id="remote-missing-{uid()}">'
+        '<h2 style="color:#991b1b;margin:0 0 8px 0;">💼 远程岗位报告未同步</h2>'
+        f'<p style="color:#7f1d1d;margin:0;line-height:1.7;">{message}</p>'
+        f'{path_hint}'
+        '</div>'
+    )
+
+def format_email(data, remote_jobs_report=None):
     html = f'''<html><body style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#fafafa;">
 <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px;border-radius:12px;margin-bottom:20px;">
 <h1 style="color:#fff;text-align:center;margin:0;">🔥 Tech Trending Daily</h1>
@@ -128,6 +251,12 @@ def format_email(data):
             html += '</div></div>'
         html += '</div>'
 
+    if remote_jobs_report:
+        if remote_jobs_report.get('status') == 'ready':
+            html += render_remote_jobs_report(remote_jobs_report)
+        else:
+            html += render_remote_jobs_warning(remote_jobs_report)
+
     html += f'<p style="text-align:center;color:#999;font-size:12px;margin-top:30px;">Generated by Tech Trending Daily 🚀 [{uid()}]</p>'
     html += '</body></html>'
     return html
@@ -138,10 +267,17 @@ if __name__ == '__main__':
     recipient = sys.argv[3]
     subject = sys.argv[4]
     data_base64 = sys.argv[5]
+    enable_remote_jobs = parse_bool(sys.argv[6]) if len(sys.argv) > 6 else parse_bool(os.getenv('ENABLE_REMOTE_JOBS'))
+    remote_jobs_path = sys.argv[7] if len(sys.argv) > 7 else os.getenv('REMOTE_JOBS_REPORT_PATH', '')
     
     decoded_bytes = base64.urlsafe_b64decode(data_base64)
     data = json.loads(decoded_bytes.decode('utf-8'))
-    content = format_email(data)
+    remote_jobs_report = None
+    if enable_remote_jobs:
+        remote_jobs_report = load_remote_jobs_report(remote_jobs_path)
+        print(f"Remote jobs report status: {remote_jobs_report['status']}")
+
+    content = format_email(data, remote_jobs_report)
     
     # Print size for debugging
     print(f"Email HTML size: {len(content)} bytes ({len(content)/1024:.1f} KB)")

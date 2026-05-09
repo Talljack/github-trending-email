@@ -5,16 +5,17 @@ on:
     # Every day at UTC 11:00 (7:00 PM in UTC+8)
     - cron: '0 11 * * *'
 
-  push:
-    branches:
-      - main
-
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Log level'
         required: true
         default: 'warning'
+      enableRemoteJobs:
+        description: 'Whether to include the synced daily remote jobs report in the email'
+        required: true
+        default: true
+        type: boolean
 
 jobs:
   send-email:
@@ -26,6 +27,15 @@ jobs:
       - name: Set current date with timezone
         id: current-date
         run: echo "CURRENT_DATE=$(TZ='Asia/Shanghai' date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Resolve remote jobs settings
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ENABLE_REMOTE_JOBS=${{ inputs.enableRemoteJobs }}" >> $GITHUB_ENV
+          else
+            echo "ENABLE_REMOTE_JOBS=true" >> $GITHUB_ENV
+          fi
+          echo "REMOTE_JOBS_REPORT_PATH=remote-jobs/daily_remote_jobs_$CURRENT_DATE.md" >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -65,7 +75,9 @@ jobs:
             "${{ secrets.GMAIL_PASSWORD }}" \
             "yugang.cao12@gmail.com" \
             "🔥 Tech Trending Daily - $CURRENT_DATE" \
-            ${{ steps.trending-repos.outputs.trendingData }}
+            ${{ steps.trending-repos.outputs.trendingData }} \
+            "$ENABLE_REMOTE_JOBS" \
+            "$REMOTE_JOBS_REPORT_PATH"
 
       - name: Write github trending repos
         run: |
