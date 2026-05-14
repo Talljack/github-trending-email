@@ -139,6 +139,22 @@ def render_remote_jobs_warning(report):
         '</div>'
     )
 
+def get_github_all_repos(gh):
+    candidates = [
+        gh.get('all'),
+        gh.get('All'),
+        gh.get(''),
+    ]
+    for repos in candidates:
+        if isinstance(repos, list):
+            return repos
+
+    for key, repos in gh.items():
+        if isinstance(repos, list):
+            return repos
+
+    return []
+
 def format_email(data, remote_jobs_report=None):
     html = f'''<html><body style="font-family:Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#fafafa;">
 <div style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:30px;border-radius:12px;margin-bottom:20px;">
@@ -149,7 +165,7 @@ def format_email(data, remote_jobs_report=None):
     # GitHub Trending - All languages with detailed cards
     if 'githubTrending' in data:
         gh = data['githubTrending']
-        all_repos = gh.get('', gh.get('all', gh.get('All', [])))
+        all_repos = get_github_all_repos(gh)
         
         if all_repos:
             html += f'<div style="background:#24292e;padding:20px;border-radius:8px;margin-bottom:15px;" id="gh-{uid()}">'
