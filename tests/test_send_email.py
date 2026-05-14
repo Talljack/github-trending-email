@@ -1,4 +1,5 @@
 import importlib.util
+import os
 import sys
 import tempfile
 import types
@@ -43,6 +44,20 @@ class SendEmailRemoteJobsTests(unittest.TestCase):
 
     def test_load_remote_jobs_report_marks_missing_file(self):
         report = self.module.load_remote_jobs_report("/tmp/does-not-exist-remote-jobs.md")
+
+        self.assertEqual(report["status"], "ready")
+        self.assertTrue(report["path"].endswith("remote-jobs/daily_remote_jobs_2026-05-13.md"))
+        self.assertEqual(report["requested_path"], "/tmp/does-not-exist-remote-jobs.md")
+        self.assertIn("已自动使用最近可用报告", report["fallback_message"])
+
+    def test_load_remote_jobs_report_marks_missing_when_no_fallback_exists(self):
+        original_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmpdir:
+            os.chdir(tmpdir)
+            try:
+                report = self.module.load_remote_jobs_report("remote-jobs/daily_remote_jobs_2099-01-01.md")
+            finally:
+                os.chdir(original_cwd)
 
         self.assertEqual(report["status"], "missing")
         self.assertIn("未找到", report["message"])
@@ -121,6 +136,25 @@ class SendEmailRemoteJobsTests(unittest.TestCase):
         self.assertIn("example/repo", html)
         self.assertIn("每日远程岗位推荐 - 2026-05-13", html)
         self.assertIn("https://eleduck.com/posts/82f2d4", html)
+
+    def test_format_email_includes_fallback_hint_when_using_latest_report(self):
+        report = {
+            "status": "ready",
+            "title": "每日远程岗位推荐 - 2026-05-13",
+            "path": "/tmp/daily_remote_jobs_2026-05-13.md",
+            "requested_path": "/tmp/daily_remote_jobs_2026-05-14.md",
+            "fallback_message": "已自动使用最近可用报告：daily_remote_jobs_2026-05-13.md",
+            "content": """主题：每日远程岗位推荐 - 2026-05-13
+
+1. A | Example Role | Example Inc
+- 申请链接：https://example.com/jobs/1
+""",
+        }
+
+        html = self.module.format_email({"githubTrending": {}}, report)
+
+        self.assertIn("已自动使用最近可用报告", html)
+        self.assertIn("daily_remote_jobs_2026-05-13.md", html)
 
 
 if __name__ == "__main__":

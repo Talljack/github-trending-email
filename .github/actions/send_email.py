@@ -8,6 +8,7 @@ import random
 import re
 import string
 import sys
+from datetime import datetime
 
 import yagmail
 
@@ -28,21 +29,62 @@ def parse_bool(value):
         return False
     return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
 
+def _extract_remote_jobs_date(path):
+    match = re.search(r'daily_remote_jobs_(\d{4}-\d{2}-\d{2})\.md$', path.name)
+    if not match:
+        return None
+    try:
+        return datetime.strptime(match.group(1), '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+def _find_latest_remote_jobs_report(report_path):
+    requested_path = Path(report_path) if report_path else None
+    search_dirs = []
+
+    if requested_path:
+        search_dirs.append(requested_path.parent)
+
+    repo_remote_jobs_dir = Path.cwd() / 'remote-jobs'
+    search_dirs.append(repo_remote_jobs_dir)
+
+    for directory in dict.fromkeys(search_dirs):
+        if not directory.exists():
+            continue
+
+        reports = []
+        for candidate in directory.glob('daily_remote_jobs_*.md'):
+            report_date = _extract_remote_jobs_date(candidate)
+            if report_date is not None:
+                reports.append((report_date, candidate))
+
+        if reports:
+            return max(reports, key=lambda item: item[0])[1]
+
+    return None
+
 def load_remote_jobs_report(report_path):
     if not report_path:
-        return {
-            'status': 'missing',
-            'message': '未提供远程岗位报告路径。',
-            'path': '',
-        }
+        latest_report = _find_latest_remote_jobs_report(report_path)
+        if latest_report is None:
+            return {
+                'status': 'missing',
+                'message': '未提供远程岗位报告路径。',
+                'path': '',
+            }
+        report_path = str(latest_report)
 
     path = Path(report_path)
     if not path.exists():
-        return {
-            'status': 'missing',
-            'message': f'未找到远程岗位报告：{path}',
-            'path': str(path),
-        }
+        latest_report = _find_latest_remote_jobs_report(report_path)
+        if latest_report is not None and latest_report != path:
+            path = latest_report
+        else:
+            return {
+                'status': 'missing',
+                'message': f'未找到远程岗位报告：{path}',
+                'path': str(path),
+            }
 
     content = path.read_text(encoding='utf-8').strip()
     title = path.stem.replace('_', ' ')
@@ -51,12 +93,18 @@ def load_remote_jobs_report(report_path):
             title = line.replace('主题：', '', 1).strip()
             break
 
-    return {
+    report = {
         'status': 'ready',
         'title': title,
         'path': str(path),
         'content': content,
     }
+    requested_path = Path(report_path)
+    if requested_path != path:
+        report['requested_path'] = str(requested_path)
+        report['fallback_message'] = f'已自动使用最近可用报告：{path.name}'
+
+    return report
 
 def render_remote_jobs_report(report):
     lines = report.get('content', '').splitlines()
@@ -65,6 +113,14 @@ def render_remote_jobs_report(report):
         f'<h2 style="color:#f9fafb;margin:0 0 8px 0;font-size:28px;line-height:1.3;">{html.escape(report.get("title", "每日远程岗位推荐"))}</h2>',
         '<p style="color:#d1d5db;margin:0 0 20px 0;font-size:14px;line-height:1.7;">以下内容来自每日远程开发岗位搜索 automation 同步的当日报告。</p>',
     ]
+
+    fallback_message = report.get('fallback_message')
+    if fallback_message:
+        parts.append(
+            f'<p style="margin:0 0 18px 0;padding:10px 12px;background:#111827;border-left:4px solid #60a5fa;color:#bfdbfe;font-size:13px;line-height:1.6;border-radius:6px;">'
+            f'{html.escape(fallback_message)}'
+            '</p>',
+        )
 
     in_list = False
 
