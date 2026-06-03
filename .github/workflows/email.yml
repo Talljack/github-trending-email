@@ -2,8 +2,10 @@ name: Send Tech Trending Daily via Gmail
 
 on:
   schedule:
-    # Every day at UTC 11:17 (7:17 PM in UTC+8)
+    # Primary run at UTC 11:17 (7:17 PM in UTC+8)
     - cron: '17 11 * * *'
+    # Backup run at UTC 11:47 (7:47 PM in UTC+8), guarded to avoid duplicate sends
+    - cron: '47 11 * * *'
 
   workflow_dispatch:
     inputs:
@@ -15,6 +17,11 @@ on:
         description: 'Whether to include the synced daily remote jobs report in the email'
         required: true
         default: true
+        type: boolean
+      forceSend:
+        description: 'Send even if a marker already exists for today'
+        required: true
+        default: false
         type: boolean
 
 jobs:
@@ -32,17 +39,50 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "ENABLE_REMOTE_JOBS=${{ inputs.enableRemoteJobs }}" >> $GITHUB_ENV
+            echo "FORCE_SEND=${{ inputs.forceSend }}" >> $GITHUB_ENV
           else
             echo "ENABLE_REMOTE_JOBS=true" >> $GITHUB_ENV
+            echo "FORCE_SEND=false" >> $GITHUB_ENV
           fi
           echo "REMOTE_JOBS_REPORT_PATH=remote-jobs/daily_remote_jobs_$CURRENT_DATE.md" >> $GITHUB_ENV
+          echo "EMAIL_MARKER_PATH=.github/email-history/$CURRENT_DATE.json" >> $GITHUB_ENV
+          echo "EMAIL_MARKER_REF=${{ github.event.repository.default_branch }}" >> $GITHUB_ENV
+
+      - name: Check daily send guard
+        run: |
+          if [ "$FORCE_SEND" = "true" ]; then
+            echo "Force send enabled for $CURRENT_DATE, skipping duplicate guard."
+            echo "SHOULD_SEND=true" >> $GITHUB_ENV
+          elif [ -f "$EMAIL_MARKER_PATH" ]; then
+            echo "Email already sent for $CURRENT_DATE, marker exists at $EMAIL_MARKER_PATH."
+            echo "SHOULD_SEND=false" >> $GITHUB_ENV
+          else
+            remote_marker_url="${{ github.api_url }}/repos/${{ github.repository }}/contents/$EMAIL_MARKER_PATH?ref=$EMAIL_MARKER_REF"
+            remote_status=$(curl -sS -o /dev/null -w '%{http_code}' \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "$remote_marker_url")
+
+            if [ "$remote_status" = "200" ]; then
+              echo "Email already sent for $CURRENT_DATE, remote marker exists on $EMAIL_MARKER_REF."
+              echo "SHOULD_SEND=false" >> $GITHUB_ENV
+            elif [ "$remote_status" = "404" ]; then
+              echo "No send marker found for $CURRENT_DATE, continuing."
+              echo "SHOULD_SEND=true" >> $GITHUB_ENV
+            else
+              echo "Unable to verify remote send marker, GitHub API returned HTTP $remote_status."
+              exit 1
+            fi
+          fi
 
       - name: Setup Node.js
+        if: env.SHOULD_SEND == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Get Trending Data
+        if: env.SHOULD_SEND == 'true'
         uses: ./
         id: trending-repos
         env:
@@ -60,15 +100,18 @@ jobs:
           itemLimit: '10'
 
       - name: Set up Python
+        if: env.SHOULD_SEND == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install dependencies
+        if: env.SHOULD_SEND == 'true'
         run: pip install yagmail
 
       # Send full trending email (new format)
       - name: Send trending email
+        if: env.SHOULD_SEND == 'true'
         run: |
           python ./.github/actions/send_email.py \
             "${{ secrets.GMAIL_USERNAME }}" \
@@ -79,11 +122,31 @@ jobs:
             "$ENABLE_REMOTE_JOBS" \
             "$REMOTE_JOBS_REPORT_PATH"
 
+      - name: Mark email as sent
+        if: env.SHOULD_SEND == 'true'
+        run: |
+          mkdir -p "$(dirname "$EMAIL_MARKER_PATH")"
+          cat > "$EMAIL_MARKER_PATH" <<EOF
+          {
+            "date": "$CURRENT_DATE",
+            "sent_at": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "event_name": "${{ github.event_name }}",
+            "run_id": "${{ github.run_id }}",
+            "run_attempt": "${{ github.run_attempt }}",
+            "sha": "${{ github.sha }}",
+            "ref": "${{ github.ref }}",
+            "actor": "${{ github.actor }}"
+          }
+          EOF
+          echo "Wrote send marker to $EMAIL_MARKER_PATH."
+
       - name: Write github trending repos
+        if: env.SHOULD_SEND == 'true'
         run: |
           python ./.github/actions/write_github_trending.py $CURRENT_DATE ${{ steps.trending-repos.outputs.githubTrendingRepos }}
 
       - name: Commit and push if changed
+        if: env.SHOULD_SEND == 'true'
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
