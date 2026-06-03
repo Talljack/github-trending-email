@@ -1,0 +1,10 @@
+{
+  "date": "2026-06-03",
+  "sent_at": "2026-06-03T15:12:10Z",
+  "event_name": "workflow_dispatch",
+  "run_id": "26894068194",
+  "run_attempt": "1",
+  "sha": "516a86661f10ce1422f2391c85c22e904ec1ad3a",
+  "ref": "refs/heads/main",
+  "actor": "Talljack"
+}
