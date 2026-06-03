@@ -26,8 +26,10 @@ name: Send Tech Trending Daily via Gmail
 
 on:
   schedule:
-    # Every day at UTC 11:17 (7:17 PM in UTC+8)
+    # Primary run at UTC 11:17 (7:17 PM in UTC+8)
     - cron: '17 11 * * *'
+    # Backup run at UTC 11:47 (7:47 PM in UTC+8), guarded to avoid duplicate sends
+    - cron: '47 11 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
