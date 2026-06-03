@@ -1,5 +1,9 @@
 name: Send Tech Trending Daily via Gmail
 
+concurrency:
+  group: tech-trending-daily-${{ github.ref }}
+  cancel-in-progress: false
+
 on:
   schedule:
     # Primary run at UTC 11:17 (7:17 PM in UTC+8)
@@ -140,12 +144,22 @@ jobs:
           EOF
           echo "Wrote send marker to $EMAIL_MARKER_PATH."
 
+      - name: Persist send marker
+        if: env.SHOULD_SEND == 'true'
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add "$EMAIL_MARKER_PATH"
+          git commit -m "Mark Tech Trending Daily sent for $CURRENT_DATE" || exit 0
+          git pull --rebase origin "$EMAIL_MARKER_REF"
+          git push
+
       - name: Write github trending repos
         if: env.SHOULD_SEND == 'true'
         run: |
           python ./.github/actions/write_github_trending.py $CURRENT_DATE ${{ steps.trending-repos.outputs.githubTrendingRepos }}
 
-      - name: Commit and push if changed
+      - name: Commit and push trending data if changed
         if: env.SHOULD_SEND == 'true'
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
