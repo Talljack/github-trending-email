@@ -1,0 +1,10 @@
+{
+  "date": "2026-08-18",
+  "sent_at": "2026-08-18T11:41:20Z",
+  "event_name": "schedule",
+  "run_id": "32132922987",
+  "run_attempt": "1",
+  "sha": "eb12c50c549488538b010bbc93242fc464dfa308",
+  "ref": "refs/heads/main",
+  "actor": "Talljack"
+}
